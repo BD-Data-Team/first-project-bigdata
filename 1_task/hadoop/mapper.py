@@ -2,7 +2,6 @@
 """mapper.py"""
 
 import sys
-from datetime import datetime
 
 # read lines from STDIN (standard input)
 for line in sys.stdin:
@@ -14,7 +13,7 @@ for line in sys.stdin:
     # split the current line into words
     fields = line.split(",")
 
-    year = datetime.fromtimestamp(fields[7]).year  # year of the review
+    year = fields[7].split('-')[0]  # year of the review
     text = fields[9]  # text of the review
     product_id = fields[1]  # product id of the item reviewed
 
