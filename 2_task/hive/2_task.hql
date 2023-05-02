@@ -15,9 +15,9 @@ CREATE TABLE if not exists reviews (
 row format delimited fields terminated BY ',' lines terminated BY '\n' 
 tblproperties("skip.header.line.count"="1"); 
 
---LOAD DATA INPATH 'hdfs:///user/francesco/input/dataset.csv' INTO TABLE reviews;
+LOAD DATA INPATH 'hdfs:///user/data-team/input/dataset.csv' INTO TABLE reviews;
 
-INSERT OVERWRITE DIRECTORY 'hdfs:///user/francesco/output/2_task'
+INSERT OVERWRITE DIRECTORY 'hdfs:///user/data-team/output/2_task/hive'
 SELECT user_id, AVG(helpfulness_numerator/helpfulness_denominator) as appreciation
 FROM reviews
 WHERE helpfulness_denominator > 0
