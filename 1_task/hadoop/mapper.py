@@ -9,8 +9,12 @@ cols = ['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator',
 
 # read lines from STDIN (standard input)
 for line in sys.stdin:
-    row = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
 
+    row = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
+    
+    if row['Id'] == 'Id':
+        continue
+    
     year = row['Time'].split("-")[0]  # year of the review
     text = row['Text']  # text of the review
     product_id = row['ProductId']  # product id of the item reviewed
