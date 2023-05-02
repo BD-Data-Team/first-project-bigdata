@@ -4,5 +4,5 @@ start-yarn.sh
 jps
 hdfs dfs -rm -r output/
 $HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/streaming/hadoop-streaming-3.3.4.jar -mapper /home/francesco/Documenti/data-team/1_task/hadoop/mapper.py -reducer /home/francesco/Documenti/data-team/1_task/hadoop/reducer.py -input /user/francesco/input/dataset.csv -output /user/francesco/output/output
-
+hdfs dfs -put /home/francesco/Documenti/data-team/datasets/Reviews_cleaned.csv /user/francesco/input/dataset.csv
 HADOOP DAVIDE:
