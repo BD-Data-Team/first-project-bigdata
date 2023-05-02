@@ -4,8 +4,8 @@
 import sys
 import csv
 
-cols = 'Id,ProductId,UserId,ProfileName,HelpfulnessNumerator,HelpfulnessDenominator,Score,Time,Summary,Text'.split(
-    ',')
+cols = ['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator',
+        'HelpfulnessDenominator', 'Score', 'Time', 'Summary', 'Text']
 
 # read lines from STDIN (standard input)
 for line in sys.stdin:

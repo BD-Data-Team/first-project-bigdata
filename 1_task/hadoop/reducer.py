@@ -2,6 +2,8 @@
 """reducer.py"""
 
 import sys
+import collections
+
 
 # this dictionary maps each bigram to the sum of the values
 # that the mapper has computed for that bigram
@@ -27,13 +29,11 @@ for line in sys.stdin:
         continue
 
     if year not in year_for_product_2_sum:
-        year_for_product_2_sum[year] = {}
-    if product_id not in year_for_product_2_sum[year]:
-        year_for_product_2_sum[year][product_id] = 0
+        year_for_product_2_sum[year] = collections.Counter()
+    # if product_id not in year_for_product_2_sum[year]:
+    #     year_for_product_2_sum[year][product_id] = 0
 
     year_for_product_2_sum[year][product_id] += cur_count
 
 for year in year_for_product_2_sum:
-    for product_id in year_for_product_2_sum[year]:
-        print("%s\t%s\t%s" %
-              (year, product_id, year_for_product_2_sum[year][product_id]))
+    print(year_for_product_2_sum[year].most_common(10))
