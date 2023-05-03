@@ -1,4 +1,4 @@
---drop table reviews;
+drop table reviews;
 
 CREATE TABLE if not exists reviews (
   id INT,

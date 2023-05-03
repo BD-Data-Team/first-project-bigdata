@@ -3,11 +3,17 @@
 # $1 is the task number
 # $2 is the implementation name
 
+#check the number of arguments
+if [[ $# -ne 2 ]] ; then
+    echo "Usage: ./run_task.sh <task_number> <implementation_name>"
+    exit 1
+fi
+
 # get the directory of the current script
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-# get the main directory of the project
-. $SCRIPT_DIR/start_env.sh
+# initialize the environment variables
+. $SCRIPT_DIR/setup_env.sh
 
 # get the task directory name
 TASK_DIR_NAME=$1$TASK_SUFFIX
@@ -22,4 +28,5 @@ if [[ $(hdfs dfs -ls $HDFS_OUTPUT_DIR_PATH/$TASK_DIR_NAME | grep $2 | wc -l) -gt
     hdfs dfs -rm -r $HDFS_FULL_TASK_OUTPUT_DIR_PATH
 fi
 
-. $MAIN_DIR/$TASK_DIR_NAME/$2/run.sh
+TASK_DIR=$MAIN_DIR/$TASK_DIR_NAME/$2
+. $TASK_DIR/run.sh

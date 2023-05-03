@@ -30,10 +30,8 @@ user_2_appreciation = {}
 for user in user_2_count:
     user_2_appreciation[user] = user_2_usefulness[user] / user_2_count[user]
 
-# sort the user_2_appreciation by value
-user_2_appreciation_ordered = dict(sorted(user_2_appreciation.items(), key=lambda item: item[1], reverse=True))
 
-for user in user_2_appreciation_ordered:
-    print(f"{user}\t{user_2_appreciation_ordered[user]}")
+for user in user_2_appreciation:
+    print(f"{user}\t{user_2_appreciation[user]}")
 
 

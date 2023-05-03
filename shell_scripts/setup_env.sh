@@ -19,12 +19,5 @@ export TASK_SUFFIX=_task
 export HDFS_DATASET_PATH=$HDFS_INPUT_DIR_PATH/dataset.csv
 export FS_DATASET_PATH=$MAIN_DIR/datasets/Reviews_cleaned.csv
 
-## start the HDFS and YARN daemons if they are not already running ##
-if  [[ $(jps | grep "NameNode" | wc -l) -lt 1 ]] ; then
-    echo "Starting DFS and YARN daemons"
-    $HADOOP_HOME/sbin/start-dfs.sh && \
-    $HADOOP_HOME/sbin/start-yarn.sh
-fi
-
 export HADOOP_STREAMING_PATH=$HADOOP_HOME/streaming
 export HADOOP_STREAMING_JAR_PATH="$HADOOP_STREAMING_PATH/$( ls $HADOOP_STREAMING_PATH | grep .jar | head -n 1 )"

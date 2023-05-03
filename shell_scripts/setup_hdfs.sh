@@ -4,7 +4,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # start the HDFS and YARN daemons if they are not already running
-. $SCRIPT_DIR/start_env.sh
+. $SCRIPT_DIR/setup_env.sh
 
 # create the input and output directories
 hdfs dfs -mkdir -p $HDFS_INPUT_DIR_PATH
