@@ -34,4 +34,5 @@ for line in sys.stdin:
 
 
 for year in year_for_product_2_sum:
-    print(f"{year}\t{year_for_product_2_sum[year].most_common(10)}\t")
+    for product in dict(year_for_product_2_sum[year].most_common(10)).keys():
+        print(year, *product, sep='\t')
