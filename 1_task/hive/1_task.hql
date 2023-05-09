@@ -38,34 +38,22 @@ SELECT top_10_products_for_year.reviews_year as reviews_year, top_10_products_fo
 FROM top_10_products_for_year, reviews
 WHERE top_10_products_for_year.reviews_year = YEAR(reviews.time) AND top_10_products_for_year.product_id = reviews.product_id;
 
-CREATE TABLE if not exists year_for_word_2_count AS
-SELECT reviews_year, exploded_text.word as word, COUNT(*) as cnt
+CREATE TABLE if not exists year_for_product_2_word_count AS
+SELECT reviews_year, product_id, exploded_text.word as word, COUNT(*) as cnt
 FROM top_10_products_for_year_with_reviews 
 LATERAL VIEW explode(split(text, ' ')) exploded_text AS word
 WHERE length(exploded_text.word) >= 4
-GROUP BY reviews_year, exploded_text.word;
+GROUP BY reviews_year, product_id, exploded_text.word;
 
-CREATE TABLE if not exists product_2_words AS
-SELECT product_id, reviews_year, exploded_text.word as word
-FROM top_10_products_for_year_with_reviews 
-LATERAL VIEW explode(split(text, ' ')) exploded_text AS word;
+INSERT OVERWRITE DIRECTORY 'hdfs:///user/data-team/output/1_task/hive'
+SELECT reviews_year, " ", product_id, " ", word, " ", cnt
+FROM (  SELECT *, row_number() OVER (PARTITION BY reviews_year, product_id ORDER BY cnt DESC) as row_num
+        FROM year_for_product_2_word_count 
+    ) as ranked_year_for_product_2_word_count
+WHERE row_num <= 5;
 
+--TODO: Risolvere problema dei null (ANCHE QUI)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- INSERT OVERWRITE DIRECTORY 'hdfs:///user/data-team/output/1_task/hive'
 -- SELECT *
 -- FROM (
 --     SELECT reviews_year, product_id
