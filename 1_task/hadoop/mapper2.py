@@ -2,11 +2,10 @@
 """mapper.py"""
 
 import sys
+import collections
 
 # read lines from STDIN (standard input)
 for line in sys.stdin:
-
-    # removing leading/trailing whitespaces
     line = line.strip()
 
     # split the current line into key and sentence
@@ -14,6 +13,9 @@ for line in sys.stdin:
 
     words = text.split(" ")
 
-    for word in words:
-        if word.count() >= 4:
-            print(f"{year}-{product_id}\t{word}\t{1}")
+    for word, count in collections.Counter(words).items():
+        if len(word) >= 4 and word != "":
+            print(f"{word}\t{year}\t{product_id}\t{count}")
+
+
+# TODO: provare il conteggio dividendo l'operazione su mapper e reducer
