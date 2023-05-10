@@ -23,8 +23,6 @@ SELECT YEAR(from_unixtime(time)) as reviews_year, product_id, COUNT(*) as cnt
 FROM reviews
 GROUP BY YEAR(from_unixtime(time)), product_id;
 
-select reviews_year from reviews_per_year;
-
 -- select top 10 products per year
 drop table if exists top_10_products_for_year;
 CREATE TABLE if not exists top_10_products_for_year AS
@@ -57,19 +55,3 @@ FROM (  SELECT *, row_number() OVER (PARTITION BY reviews_year, product_id ORDER
 WHERE row_num <= 5;
 
 --TODO: Risolvere problema dei null (ANCHE QUI)
-
--- SELECT *
--- FROM (
---     SELECT reviews_year, product_id
---     FROM (
---         -- compute rank per year
---         SELECT *, row_number() OVER (PARTITION BY reviews_year ORDER BY cnt DESC) as row_num
---         FROM (
---             -- compute number of reviews per year and product
---             SELECT YEAR(time) as reviews_year, product_id, COUNT(*) as cnt
---             FROM reviews
---             GROUP BY YEAR(time), product_id
---         ) as reviews_per_year
---     ) as ranked_reviews_per_year
---     WHERE row_num <= 10) as top_10_products_for_year 
--- JOIN reviews ON top_10_products_for_year.reviews_year = YEAR(reviews.time) AND top_10_products_for_year.product_id = reviews.product_id;
