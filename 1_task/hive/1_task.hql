@@ -1,30 +1,32 @@
 -- drop table if exists reviews;
-
--- CREATE TABLE if not exists reviews (
---   id INT,
---   product_id STRING,
---   user_id STRING,
---   profile_name STRING,
---   helpfulness_numerator FLOAT,
---   helpfulness_denominator FLOAT,
---   score FLOAT,
---   time DATE,
---   summary STRING,
---   text STRING
--- ) row format delimited fields terminated BY ',' lines terminated BY '\n' 
--- tblproperties("skip.header.line.count"="1"); 
+CREATE TABLE if not exists reviews (
+  id INT,
+  product_id STRING,
+  user_id STRING,
+  profile_name STRING,
+  helpfulness_numerator FLOAT,
+  helpfulness_denominator FLOAT,
+  score FLOAT,
+  time BIGINT,
+  summary STRING,
+  text STRING
+) row format delimited fields terminated BY ',' lines terminated BY '\n' 
+tblproperties("skip.header.line.count"="1");
 
 -- LOAD DATA INPATH 'hdfs:///user/data-team/input/dataset.csv' INTO TABLE reviews;
 
 
 -- compute number of reviews per year and product
+drop table if exists reviews_per_year;
 CREATE TABLE if not exists reviews_per_year AS
-SELECT YEAR(time) as reviews_year, product_id, COUNT(*) as cnt
+SELECT YEAR(from_unixtime(time)) as reviews_year, product_id, COUNT(*) as cnt
 FROM reviews
-GROUP BY YEAR(time), product_id;
+GROUP BY YEAR(from_unixtime(time)), product_id;
 
+select reviews_year from reviews_per_year;
 
 -- select top 10 products per year
+drop table if exists top_10_products_for_year;
 CREATE TABLE if not exists top_10_products_for_year AS
 SELECT reviews_year, product_id
 FROM (
@@ -33,11 +35,13 @@ FROM (
     ) as ranked_reviews_per_year
 WHERE row_num <= 10; 
 
+drop table if exists top_10_products_for_year_with_reviews;
 CREATE TABLE if not exists top_10_products_for_year_with_reviews AS
 SELECT top_10_products_for_year.reviews_year as reviews_year, top_10_products_for_year.product_id as product_id, reviews.text as text
 FROM top_10_products_for_year, reviews
-WHERE top_10_products_for_year.reviews_year = YEAR(reviews.time) AND top_10_products_for_year.product_id = reviews.product_id;
+WHERE top_10_products_for_year.reviews_year = YEAR(from_unixtime(time)) AND top_10_products_for_year.product_id = reviews.product_id;
 
+drop table if exists year_for_product_2_word_count;
 CREATE TABLE if not exists year_for_product_2_word_count AS
 SELECT reviews_year, product_id, exploded_text.word as word, COUNT(*) as cnt
 FROM top_10_products_for_year_with_reviews 
