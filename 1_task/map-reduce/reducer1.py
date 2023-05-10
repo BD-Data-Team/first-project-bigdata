@@ -16,17 +16,11 @@ for line in sys.stdin:
     line = line.strip()
 
     # parse the input elements
-    year_for_product, text, count = line.split("\t")
+    year_for_product, text = line.split("\t")
 
     year = year_for_product.split("-")[0]
     product_id = year_for_product.split("-")[1]
 
-    # convert count (currently a string) to int
-    # if count is not a number silently ignore/discard this line
-    try:
-        cur_count = int(count)
-    except ValueError:
-        continue
 
     if year not in year_for_product_2_sum:
         year_for_product_2_sum[year] = collections.Counter()
@@ -37,7 +31,7 @@ for line in sys.stdin:
     if product_id not in year_for_product_2_text[year]:
         year_for_product_2_text[year][product_id] = []
 
-    year_for_product_2_sum[year][product_id] += cur_count
+    year_for_product_2_sum[year][product_id] += 1
     year_for_product_2_text[year][product_id].append(text)
 
 

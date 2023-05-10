@@ -11,4 +11,4 @@ for line in sys.stdin:
     # parse the input elements
     user, appreciation = line.split("\t")
 
-    print(f"{appreciation}\t{user}")
+    print(f"{1 - float(appreciation)}\t{user}")

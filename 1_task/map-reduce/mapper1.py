@@ -3,6 +3,7 @@
 
 import sys
 import csv
+from datetime import datetime
 
 cols = ['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator',
         'HelpfulnessDenominator', 'Score', 'Time', 'Summary', 'Text']
@@ -11,11 +12,14 @@ cols = ['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator',
 for line in sys.stdin:
     row = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
 
-    if row['Id'] == 'Id' or row['UserId'] == '':
+    if row['Id'] == 'Id':
+        continue
+    try:
+        year = datetime.fromtimestamp(float(row['Time'])).year  # year of the review
+    except:
         continue
 
-    year = row['Time'].split("-")[0]  # year of the review
     text = row['Text']  # text of the review
     product_id = row['ProductId']  # product id of the item reviewed
 
-    print(f"{year}-{product_id}\t{text}\t{1}")
+    print(f"{year}-{product_id}\t{text}")

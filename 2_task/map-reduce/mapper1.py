@@ -20,12 +20,12 @@ for line in sys.stdin:
     id = row['UserId'] 
 
     try:
-        helpfulness_numerator = float(row['HelpfulnessNumerator'])
-        helpfulness_denominator = float(row['HelpfulnessDenominator'])
+        helpfulness_numerator = int(row['HelpfulnessNumerator'])
+        helpfulness_denominator = int(row['HelpfulnessDenominator'])
     except ValueError:
         continue
 
-    if helpfulness_denominator == 0:
+    if helpfulness_numerator > helpfulness_denominator or helpfulness_denominator <= 0:
         continue
     
     usefulness = helpfulness_numerator / helpfulness_denominator
