@@ -31,36 +31,41 @@ spark = SparkSession \
 # with a record for each line in the input file
 input_RDD = spark.sparkContext.textFile(input_filepath).cache()
 
+# skip the first line of the CSV
 header = input_RDD.first()
 input_RDD = input_RDD.filter(lambda line: line != header)
 
-def all_in_one(line):
+
+def transform_data(line):
     line = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
-    line["Helpfulness"] = -1
 
-    if (float(line['HelpfulnessDenominator']) <= 0 ):
-        return line
-    
     try:
-        line["Helpfulness"] = float(line["HelpfulnessNumerator"]) / float(line["HelpfulnessDenominator"])
+        line["Helpfulness"] = int(
+            line["HelpfulnessNumerator"]) / int(line["HelpfulnessDenominator"])
     except:
-        pass
-
-    if line["Helpfulness"] > 1:
-        line["Helpfulness"] = -1
+        line["Helpfulness"] = None
+        return line
 
     return line
 
 
-extracted_RDD = input_RDD.map(all_in_one)
-extracted_RDD = extracted_RDD.filter(lambda line: line["Helpfulness"] >= 0)
+extracted_RDD = input_RDD.map(transform_data)
+extracted_RDD = extracted_RDD.filter(
+    lambda line: line["Helpfulness"] != None and line["Helpfulness"] <= 1.0)
 
-helpfulness_RDD = extracted_RDD.map(lambda line: (line["UserId"], (line["Helpfulness"], 1)))
+helpfulness_RDD = extracted_RDD.map(
+    lambda line: (line["UserId"], (line["Helpfulness"], 1)))
 
 
-appreciation_RDD = helpfulness_RDD.reduceByKey(lambda a, b: (a[0] + b[0], a[1] + a[1]))
-appreciation_RDD = appreciation_RDD.map(lambda line: f"{line[0]}  {line[1][0] / line[1][1]}")
+appreciation_RDD = helpfulness_RDD.reduceByKey(
+    lambda a, b: (a[0] + b[0], a[1] + b[1]))
+appreciation_RDD = appreciation_RDD.map(
+    lambda line: (line[0], line[1][0] / line[1][1]))
 
-appreciation_RDD = appreciation_RDD.sortBy(lambda line: line[1], ascending=False)
+appreciation_RDD = appreciation_RDD.sortBy(
+    lambda line: line[1], ascending=False)
+
+appreciation_RDD = appreciation_RDD.map(lambda line:
+                                        f"{line[0]}\t{line[1]}")
 
 appreciation_RDD.saveAsTextFile(output_filepath)
