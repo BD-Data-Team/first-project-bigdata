@@ -1,19 +1,19 @@
--- drop table if exists reviews;
+drop table if exists reviews;
 CREATE TABLE if not exists reviews (
   id INT,
   product_id STRING,
   user_id STRING,
   profile_name STRING,
-  helpfulness_numerator FLOAT,
-  helpfulness_denominator FLOAT,
-  score FLOAT,
+  helpfulness_numerator INT,
+  helpfulness_denominator INT,
+  score INT,
   time BIGINT,
   summary STRING,
   text STRING
 ) row format delimited fields terminated BY ',' lines terminated BY '\n' 
 tblproperties("skip.header.line.count"="1");
 
--- LOAD DATA INPATH 'hdfs:///user/data-team/input/dataset.csv' INTO TABLE reviews;
+LOAD DATA INPATH 'hdfs:///user/data-team/input/dataset.csv' INTO TABLE reviews;
 
 
 -- compute number of reviews per year and product

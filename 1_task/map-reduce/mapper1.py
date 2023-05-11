@@ -15,7 +15,8 @@ for line in sys.stdin:
     if row['Id'] == 'Id':
         continue
     try:
-        year = datetime.fromtimestamp(float(row['Time'])).year  # year of the review
+        year = datetime.fromtimestamp(
+            int(row['Time'])).year  # year of the review
     except:
         continue
 

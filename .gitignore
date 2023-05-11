@@ -1,3 +1,4 @@
 /datasets/*
 !*/README.md
-output_final*
+output*
+*.pdf
