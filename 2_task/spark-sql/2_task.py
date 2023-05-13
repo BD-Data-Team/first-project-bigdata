@@ -2,7 +2,6 @@
 """spark application"""
 
 import argparse
-
 # create parser and set its arguments
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
@@ -23,7 +22,7 @@ spark = SparkSession \
 args = parser.parse_args()
 input_filepath, output_filepath = args.input_path, args.output_path
 
-df = spark.read.csv(input_filepath, header=True, inferSchema=True)
+df = spark.read.csv(input_filepath, header=True, inferSchema=True).cache()
 
 df = df.withColumn("Helpfulness", df["HelpfulnessNumerator"] / df["HelpfulnessDenominator"]) \
     .groupBy("UserId").agg(F.avg("Helpfulness").alias("Appreciation"))
