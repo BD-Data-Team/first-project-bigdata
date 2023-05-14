@@ -5,7 +5,7 @@
 import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType, StringType, StructType, StructField, LongType
-from pyspark.sql.functions import from_unixtime, row_number
+from pyspark.sql.functions import from_unixtime, row_number, explode, split
 from pyspark.sql import Window
 
 
@@ -62,11 +62,12 @@ join_condition = [top_10_products_for_year_DF.reviews_year == input_DF.reviews_y
 top_10_products_for_year_with_reviews_DF = top_10_products_for_year_DF.join(input_DF, join_condition).drop(
     input_DF.product_id, input_DF.reviews_year).select("reviews_year", "product_id", "text")
 
-top_10_products_for_year_with_reviews_DF.createOrReplaceTempView(
-    "top_10_products_for_year_with_reviews")
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_with_reviews_DF.withColumn(
+    "word", explode(split(top_10_products_for_year_with_reviews_DF.text, " ")))
 
-year_for_product_2_word_count_DF = spark.sql(
-    "SELECT reviews_year, product_id, exploded_text.word as word, COUNT(*) as word_count FROM top_10_products_for_year_with_reviews  LATERAL VIEW explode(split(text, ' ')) exploded_text AS word WHERE length(exploded_text.word) >= 4 GROUP BY reviews_year, product_id, exploded_text.word;")
+year_for_product_2_word_count_DF = top_10_products_for_year_with_reviews_DF.groupBy(
+    "reviews_year", "product_id", "word").count().withColumnRenamed("count", "word_count")\
+    .where("length(word) >= 4").select("reviews_year", "product_id", "word", "word_count")
 
 win_temp2 = Window.partitionBy("reviews_year", "product_id").orderBy(
     year_for_product_2_word_count_DF["word_count"].desc())
@@ -74,4 +75,4 @@ win_temp2 = Window.partitionBy("reviews_year", "product_id").orderBy(
 output_DF = year_for_product_2_word_count_DF.withColumn(
     "row_num", row_number().over(win_temp2)).filter("row_num <= 5").drop("row_num").drop("reviews_count")
 
-output_DF.show()
+output_DF.write.csv(output_filepath, header=True)
