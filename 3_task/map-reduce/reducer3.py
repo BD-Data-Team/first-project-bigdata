@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""mapper.py"""
+
+import sys
+
+products_2_users = {}
+
+# read lines from STDIN (standard input)
+for line in sys.stdin:
+    line = line.strip()
+    _, products, users = line.split('\t')
+
+    if products not in products_2_users:
+        products_2_users[products] = ""
+
+    products_2_users[products] = users
+
+for products, users in products_2_users.items():
+    print(f"{products} -> {users}")

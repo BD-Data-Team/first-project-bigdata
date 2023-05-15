@@ -28,4 +28,4 @@ hdfs dfs -rm -r $HDFS_FULL_TASK_OUTPUT_DIR_PATH
 
 
 TASK_DIR=$MAIN_DIR/$TASK_DIR_NAME/$2
-. $TASK_DIR/run.sh
+time . $TASK_DIR/run.sh
