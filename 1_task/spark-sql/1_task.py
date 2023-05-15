@@ -5,6 +5,8 @@
 import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType, StringType, StructType, StructField, LongType
+from pyspark.sql.functions import from_unixtime, row_number, explode, split
+from pyspark.sql import Window
 
 
 parser = argparse.ArgumentParser()
@@ -20,6 +22,7 @@ input_filepath, output_filepath = args.input_path, args.output_path
 # with the proper configuration
 spark = SparkSession \
     .builder \
+    .config("spark.driver.host", "localhost") \
     .appName("Fist task") \
     .getOrCreate()
 
@@ -40,32 +43,36 @@ custom_schema = StructType([
 input_DF = spark.read.csv(
     input_filepath, schema=custom_schema, header=True).cache()
 
-input_DF.createOrReplaceTempView("reviews")
+input_DF = input_DF.withColumn(
+    "reviews_year", from_unixtime(input_DF["time"]).substr(0, 4))
 
-reviews_per_year_DF = spark.sql(
-    "SELECT year(from_unixtime(time)) as reviews_year, product_id, COUNT(*) as reviews_count FROM reviews GROUP BY YEAR(from_unixtime(time)), product_id;")
+reviews_per_year_DF = input_DF.groupBy(
+    "reviews_year", "product_id").count().withColumnRenamed("count", "reviews_count")
 
-reviews_per_year_DF.createOrReplaceTempView("reviews_per_year")
+win_temp = Window.partitionBy("reviews_year").orderBy(
+    reviews_per_year_DF["reviews_count"].desc())
 
-top_10_products_for_year_DF = spark.sql(
-    "SELECT reviews_year, product_id FROM ( SELECT *, row_number() OVER (PARTITION BY reviews_year ORDER BY reviews_count DESC) as row_num FROM reviews_per_year  ) as ranked_reviews_per_year WHERE row_num <= 10;")
+top_10_products_for_year_DF = reviews_per_year_DF.withColumn(
+    "row_num", row_number().over(win_temp)).filter("row_num <= 10").drop("row_num").drop("reviews_count")
 
-top_10_products_for_year_DF.createOrReplaceTempView("top_10_products_for_year")
+join_condition = [top_10_products_for_year_DF.reviews_year == input_DF.reviews_year,
+                  top_10_products_for_year_DF.product_id == input_DF.product_id]
 
-top_10_products_for_year_with_reviews_DF = spark.sql(
-    "SELECT top_10_products_for_year.reviews_year as reviews_year, top_10_products_for_year.product_id as product_id, reviews.text as text FROM top_10_products_for_year, reviews WHERE top_10_products_for_year.reviews_year = YEAR(from_unixtime(time)) AND top_10_products_for_year.product_id = reviews.product_id;")
+# drop necessary otherwise ambiguity column name error
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_DF.join(input_DF, join_condition).drop(
+    input_DF.product_id, input_DF.reviews_year).select("reviews_year", "product_id", "text")
 
-top_10_products_for_year_with_reviews_DF.createOrReplaceTempView(
-    "top_10_products_for_year_with_reviews")
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_with_reviews_DF.withColumn(
+    "word", explode(split(top_10_products_for_year_with_reviews_DF.text, " ")))
 
-year_for_product_2_word_count_DF = spark.sql(
-    "SELECT reviews_year, product_id, exploded_text.word as word, COUNT(*) as word_count FROM top_10_products_for_year_with_reviews  LATERAL VIEW explode(split(text, ' ')) exploded_text AS word WHERE length(exploded_text.word) >= 4 GROUP BY reviews_year, product_id, exploded_text.word;")
+year_for_product_2_word_count_DF = top_10_products_for_year_with_reviews_DF.groupBy(
+    "reviews_year", "product_id", "word").count().withColumnRenamed("count", "word_count")\
+    .where("length(word) >= 4").select("reviews_year", "product_id", "word", "word_count")
 
-year_for_product_2_word_count_DF.createOrReplaceTempView(
-    "year_for_product_2_word_count")
+win_temp2 = Window.partitionBy("reviews_year", "product_id").orderBy(
+    year_for_product_2_word_count_DF["word_count"].desc())
 
-output_DF = spark.sql("SELECT reviews_year, product_id, word, word_count FROM (  SELECT *, row_number() OVER (PARTITION BY reviews_year, product_id ORDER BY word_count DESC) as row_num FROM year_for_product_2_word_count  ) as ranked_year_for_product_2_word_count WHERE row_num <= 5;")
+output_DF = year_for_product_2_word_count_DF.withColumn(
+    "row_num", row_number().over(win_temp2)).filter("row_num <= 5").drop("row_num").drop("reviews_count")
 
-output_DF.show()
-
-# output_DF.saveAsTextFile(output_filepath)
+output_DF.write.csv(output_filepath, header=True)
