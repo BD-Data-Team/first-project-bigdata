@@ -14,9 +14,9 @@ CREATE TABLE if not exists reviews (
 tblproperties("skip.header.line.count"="1");
 
 
-LOAD DATA INPATH 'hdfs:///user/data-team/input/dataset.csv' INTO TABLE reviews;
+LOAD DATA INPATH '${hiveconf:dataset}' INTO TABLE reviews;
 
-INSERT OVERWRITE DIRECTORY 'hdfs:///user/data-team/output/2_task/hive'
+INSERT OVERWRITE DIRECTORY '${hiveconf:output_dir}'
 SELECT user_id, AVG(helpfulness_numerator / helpfulness_denominator) as appreciation
 FROM reviews
 WHERE NOT (helpfulness_numerator > helpfulness_denominator OR helpfulness_denominator <= 0.0)
