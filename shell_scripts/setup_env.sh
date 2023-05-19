@@ -13,11 +13,12 @@ export DATA_TEAM_HOME=hdfs:///user/data-team
 export HDFS_INPUT_DIR_PATH=$DATA_TEAM_HOME/input
 export HDFS_OUTPUT_DIR_PATH=$DATA_TEAM_HOME/output
 
-# output task suffix
-export TASK_SUFFIX=_task
+# output job suffix
+export JOB_SUFFIX=_job
 
-export HDFS_DATASET_PATH=$HDFS_INPUT_DIR_PATH/dataset.csv
-export FS_DATASET_PATH=$MAIN_DIR/datasets/Reviews_cleaned.csv
+export FS_DATASETS_DIR=$MAIN_DIR/datasets
+
+export DATASET_PREFIX=dataset_
 
 export HADOOP_STREAMING_PATH=$HADOOP_HOME/streaming
 export HADOOP_STREAMING_JAR_PATH="$HADOOP_STREAMING_PATH/$( ls $HADOOP_STREAMING_PATH | grep .jar | head -n 1 )"

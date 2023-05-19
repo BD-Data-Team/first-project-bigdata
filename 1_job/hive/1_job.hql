@@ -1,4 +1,4 @@
---drop table if exists reviews;
+drop table if exists reviews;
 CREATE TABLE if not exists reviews (
   id INT,
   product_id STRING,
@@ -13,8 +13,7 @@ CREATE TABLE if not exists reviews (
 ) row format delimited fields terminated BY ',' lines terminated BY '\n' 
 tblproperties("skip.header.line.count"="1");
 
---LOAD DATA INPATH 'hdfs:///user/data-team/input/dataset.csv' INTO TABLE reviews;
-
+LOAD DATA INPATH '${hiveconf:dataset}' INTO TABLE reviews;
 
 -- compute number of reviews per year and product
 drop table if exists reviews_per_year;
@@ -47,7 +46,7 @@ LATERAL VIEW explode(split(text, ' ')) exploded_text AS word
 WHERE length(exploded_text.word) >= 4
 GROUP BY reviews_year, product_id, exploded_text.word;
 
-INSERT OVERWRITE DIRECTORY 'hdfs:///user/data-team/output/1_task/hive'
+INSERT OVERWRITE DIRECTORY '${hiveconf:output_dir}'
 SELECT reviews_year, product_id, word, word_count
 FROM (  SELECT *, row_number() OVER (PARTITION BY reviews_year, product_id ORDER BY word_count DESC) as row_num
         FROM year_for_product_2_word_count 
