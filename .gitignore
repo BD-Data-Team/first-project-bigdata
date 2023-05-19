@@ -3,3 +3,4 @@
 output*
 *.pdf
 __pycache__/
+plots*

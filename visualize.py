@@ -3,7 +3,7 @@ from statistics import mean, stdev
 import inflect
 
 
-def plot_statistics(nTest, elapsed_times, nJob):
+def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percentage):
     # Plotting the statistics
     # elapsed times is a list of lists of 4 elements
 
@@ -52,4 +52,7 @@ def plot_statistics(nTest, elapsed_times, nJob):
     ax[1][1].set_title("Execution time of the " + p.ordinal(nJob) +
                        " job" + " with 250% of the dataset")
     fig.tight_layout()
+    fig.savefig("plots/" + implementation + "_" + str(nJob) +
+                "_" + str(dataset_percentage) + ".png")
+    # map-reduce_1_100.png dove il job è il primo e il dataset è al 100% e l'implementazione è map-reduce
     plt.show()
