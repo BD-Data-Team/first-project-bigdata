@@ -4,5 +4,3 @@ spark-submit --master yarn \
         $TASK_DIR/1_task.py \
         --input_path $HDFS_DATASET_PATH \
         --output_path $HDFS_FULL_TASK_OUTPUT_DIR_PATH
-
-exit 0

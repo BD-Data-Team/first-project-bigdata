@@ -23,6 +23,3 @@ if [[ $? -gt 0 ]] ; then
     hdfs dfs -rm -r $HDFS_FULL_TASK_OUTPUT_DIR_PATH
     exit 1
 fi
-
-
-exit 0

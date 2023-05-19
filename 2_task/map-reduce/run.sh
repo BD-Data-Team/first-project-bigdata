@@ -17,5 +17,3 @@ hadoop jar $HADOOP_STREAMING_JAR_PATH \
         -input "${HDFS_FULL_TASK_OUTPUT_DIR_PATH}_0" -output $HDFS_FULL_TASK_OUTPUT_DIR_PATH
 
 hdfs dfs -rm -r $"${HDFS_FULL_TASK_OUTPUT_DIR_PATH}_0"
-
-exit 0
