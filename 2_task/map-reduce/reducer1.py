@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""reducer.py"""
 
 import sys
 import collections
@@ -26,12 +25,6 @@ for line in sys.stdin:
     user_2_count[id] += 1
     user_2_usefulness[id] += curr_usefulness
 
-user_2_appreciation = {}
 for user in user_2_count:
-    user_2_appreciation[user] = user_2_usefulness[user] / user_2_count[user]
-
-
-for user in user_2_appreciation:
-    print(f"{user}\t{user_2_appreciation[user]}")
-
-
+    apprecciation = user_2_usefulness[user] / user_2_count[user]
+    print(f"{user}\t{apprecciation}")
