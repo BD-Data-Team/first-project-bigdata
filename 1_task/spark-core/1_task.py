@@ -26,7 +26,7 @@ input_filepath, output_filepath = args.input_path, args.output_path
 # with the proper configuration
 spark = SparkSession \
     .builder \
-    .appName("Second task") \
+    .appName("Fist task") \
     .getOrCreate()
 
 # spark.sparkContext.textFile(filepath) returns an RDD
@@ -53,29 +53,54 @@ def get_year_and_product(line):
 def get_product_and_text(line):
     line = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
 
-    return (line["ProductId"], line["Text"])
+    try:
+        year = str(datetime.fromtimestamp(
+            int(line['Time'])).year)  # year of the review
+    except:
+        return None
+
+    return ((year, line["ProductId"]), line["Text"])
 
 
 year_product_RDD = input_RDD.map(get_year_and_product)
-product_text_RDD = input_RDD.map(get_product_and_text)
 
 year_product_RDD = year_product_RDD.filter(
     lambda line: line != None)
 
-# output of this transformation: (year, [(product_id, text), (product_id, text), ...]) for each year
+# output of this transformation: (year, [product_id, product_id, ...]) for each year
 most_reviewed_RDD = year_product_RDD.groupByKey()
 
+
+# output of this transformation: ((year, productId),None), ((year, productId),None)) ...
 most_reviewed_RDD = most_reviewed_RDD.map(lambda line: (
-    line[0], [productId for productId, _ in Counter(line[1]).most_common(10)]))
+    line[0], [productId for productId, _ in Counter(line[1]).most_common(10)]))\
+    .flatMap(lambda line: [((line[0], productId), None) for productId in line[1]])
 
-most_reviewed_RDD = most_reviewed_RDD.flatMap(
-    lambda line: [(productId, line[0]) for productId in line[1]])
-
+# output of this transformation: ((year, productId),(None, [text, text, text])
+product_text_RDD = input_RDD.map(get_product_and_text)
 most_reviewed_RDD = most_reviewed_RDD.join(product_text_RDD)
 
+# get away the None values
 most_reviewed_RDD = most_reviewed_RDD.map(
-    lambda line: (line[1][0], (line[0], line[1][1])))
+    lambda line: (line[0], line[1][1]))
 
-print(most_reviewed_RDD.take(10))
+most_reviewed_RDD = most_reviewed_RDD.groupByKey()
 
-# appreciation_RDD.saveAsTextFile(output_filepath)
+# output of this transformation (year, productId, [(word, count), (word, count), ...]) list of 5 most common words for each product
+
+
+def get_most_common_words(line):
+    words = []
+    for text in line[1]:
+        words.extend(text.split(" "))
+    words = [word for word in words if len(word) >= 4]
+    return (line[0], Counter(words).most_common(5))
+
+
+most_reviewed_RDD = most_reviewed_RDD.map(get_most_common_words)
+most_reviewed_RDD = most_reviewed_RDD.sortByKey()
+
+most_reviewed_RDD = most_reviewed_RDD.map(lambda line:
+                                          f"{line[0][0]}\t{line[0][1]}\t{line[1]}")
+
+most_reviewed_RDD.saveAsTextFile(output_filepath)
