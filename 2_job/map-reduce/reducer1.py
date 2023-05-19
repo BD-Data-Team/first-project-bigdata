@@ -26,5 +26,5 @@ for line in sys.stdin:
     user_2_usefulness[id] += curr_usefulness
 
 for user in user_2_count:
-    apprecciation = user_2_usefulness[user] / user_2_count[user]
-    print(f"{user}\t{apprecciation}")
+    appreciation = user_2_usefulness[user] / user_2_count[user]
+    print(f"{user}\t{appreciation}")
