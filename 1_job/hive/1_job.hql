@@ -1,4 +1,5 @@
-CREATE TABLE if not exists reviews (
+drop table if exists reviews;
+CREATE TABLE  reviews (
   id INT,
   product_id STRING,
   user_id STRING,
@@ -10,7 +11,7 @@ CREATE TABLE if not exists reviews (
   summary STRING,
   text STRING
 ) row format delimited fields terminated BY ',' lines terminated BY '\n' 
-location '${hiveconf:input_dir}'
+location '${hiveconf:input_dir}/copy/'
 tblproperties("skip.header.line.count"="1");
 
 LOAD DATA INPATH '${hiveconf:dataset}' INTO TABLE reviews;
