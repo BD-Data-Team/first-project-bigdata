@@ -3,7 +3,6 @@
 
 import argparse
 import csv
-from datetime import datetime
 from collections import Counter
 
 # create parser and set its arguments
@@ -11,7 +10,7 @@ from pyspark.sql import SparkSession
 
 
 cols = ['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator',
-        'HelpfulnessDenominator', 'Score', 'Time', 'Summary', 'Text']
+        'HelpfulnessDenominator', 'Score', 'Year', 'Summary', 'Text']
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_path", type=str, help="Input file path")
@@ -42,8 +41,7 @@ def get_year_and_product(line):
     line = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
 
     try:
-        year = str(datetime.fromtimestamp(
-            int(line['Time'])).year)  # year of the review
+        year = int(line['Time'])  # year of the review
     except:
         return None
 
@@ -54,8 +52,7 @@ def get_product_and_text(line):
     line = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
 
     try:
-        year = str(datetime.fromtimestamp(
-            int(line['Time'])).year)  # year of the review
+        year = int(line['Time'])  # year of the review
     except:
         return None
 

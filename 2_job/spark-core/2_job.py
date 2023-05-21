@@ -9,7 +9,7 @@ from pyspark.sql import SparkSession
 
 
 cols = ['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator',
-        'HelpfulnessDenominator', 'Score', 'Time', 'Summary', 'Text']
+        'HelpfulnessDenominator', 'Score', 'Year', 'Summary', 'Text']
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_path", type=str, help="Input file path")

@@ -7,7 +7,7 @@ CREATE EXTERNAL TABLE if not exists reviews (
   helpfulness_numerator INT,
   helpfulness_denominator INT,
   score INT,
-  time BIGINT,
+  review_year INT,
   summary STRING,
   text STRING
 ) row format delimited fields terminated BY ',' lines terminated BY '\n' 
