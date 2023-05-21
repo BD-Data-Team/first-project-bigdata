@@ -23,4 +23,4 @@ for line in sys.stdin:
     text = row['Text']  # text of the review
     product_id = row['ProductId']  # product id of the item reviewed
 
-    print(f"{year}-{product_id}\t{text}")
+    print(f"{year}\t{product_id}\t{text}")

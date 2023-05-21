@@ -4,8 +4,6 @@
 import sys
 import collections
 
-# this dictionary maps each bigram to the sum of the values
-# that the mapper has computed for that bigram
 year_for_product_2_sum = {}
 year_for_product_2_text = {}
 
@@ -16,10 +14,7 @@ for line in sys.stdin:
     line = line.strip()
 
     # parse the input elements
-    year_for_product, text = line.split("\t")
-
-    year = year_for_product.split("-")[0]
-    product_id = year_for_product.split("-")[1]
+    year, product_id, text = line.split("\t")
 
 
     if year not in year_for_product_2_sum:
