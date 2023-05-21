@@ -7,4 +7,4 @@ for line in sys.stdin:
 
     appreciation, user = line.split("\t")
 
-    print(f"{user}\t{1 - float(appreciation)}")
+    print(f"{user}\t{float(appreciation)}")
