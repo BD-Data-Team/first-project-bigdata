@@ -41,7 +41,7 @@ def get_year_and_product(line):
     line = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
 
     try:
-        year = int(line['Time'])  # year of the review
+        year = int(line['Year'])  # year of the review
     except:
         return None
 
@@ -52,7 +52,7 @@ def get_product_and_text(line):
     line = dict(zip(cols, [a.strip() for a in next(csv.reader([line]))]))
 
     try:
-        year = int(line['Time'])  # year of the review
+        year = int(line['Year'])  # year of the review
     except:
         return None
 
