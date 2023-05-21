@@ -1,3 +1,4 @@
+!hdfs dfs -cp ${hiveconf:dataset} ${hiveconf:input_dir}/copy/;
 drop table if exists reviews;
 CREATE TABLE  reviews (
   id INT,
