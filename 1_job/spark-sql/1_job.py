@@ -5,7 +5,7 @@
 import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.types import IntegerType, StringType, StructType, StructField, LongType
-from pyspark.sql.functions import from_unixtime, row_number, explode, split
+from pyspark.sql.functions import row_number, explode, split
 from pyspark.sql import Window
 
 
@@ -36,15 +36,12 @@ custom_schema = StructType([
     StructField(name="helpfulness_denominator",
                 dataType=IntegerType(), nullable=True),
     StructField(name="score", dataType=IntegerType(), nullable=True),
-    StructField(name="time", dataType=LongType(), nullable=True),
+    StructField(name="review_year", dataType=IntegerType(), nullable=True),
     StructField(name="summary", dataType=StringType(), nullable=True),
     StructField(name="text", dataType=StringType(), nullable=True)])
 
 input_DF = spark.read.csv(
     input_filepath, schema=custom_schema, header=True).cache()
-
-input_DF = input_DF.withColumn(
-    "reviews_year", from_unixtime(input_DF["time"]).substr(0, 4))
 
 reviews_per_year_DF = input_DF.groupBy(
     "reviews_year", "product_id").count().withColumnRenamed("count", "reviews_count")

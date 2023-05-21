@@ -3,10 +3,9 @@
 
 import sys
 import csv
-from datetime import datetime
 
 cols = ['Id', 'ProductId', 'UserId', 'ProfileName', 'HelpfulnessNumerator',
-        'HelpfulnessDenominator', 'Score', 'Time', 'Summary', 'Text']
+        'HelpfulnessDenominator', 'Score', 'Year', 'Summary', 'Text']
 
 # read lines from STDIN (standard input)
 for line in sys.stdin:
@@ -15,8 +14,7 @@ for line in sys.stdin:
     if row['Id'] == 'Id':
         continue
     try:
-        year = datetime.fromtimestamp(
-            int(row['Time'])).year  # year of the review
+        year = int(row['Year'])  # year of the review
     except:
         continue
 
