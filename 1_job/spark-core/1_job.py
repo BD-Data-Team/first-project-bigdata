@@ -64,7 +64,7 @@ year_product_RDD = input_RDD.map(get_year_and_product)
 year_product_RDD = year_product_RDD.filter(
     lambda line: line != None)
 
-# output of this transformation: (year, [product_id, product_id, ...]) for each year
+# output of this transformation: (year, [product_id, productmap_id, ...]) for each year
 most_reviewed_RDD = year_product_RDD.groupByKey()
 
 
@@ -97,7 +97,7 @@ def get_most_common_words(line):
 most_reviewed_RDD = most_reviewed_RDD.map(get_most_common_words)
 most_reviewed_RDD = most_reviewed_RDD.sortByKey()
 
-most_reviewed_RDD = most_reviewed_RDD.map(lambda line:
-                                          f"{line[0][0]}\t{line[0][1]}\t{line[1]}")
+most_reviewed_RDD = most_reviewed_RDD.flatMap(
+    lambda line: [f"{line[0][0]}\t{line[0][1]}\t{word}\t{count}"for word, count in line[1]])
 
 most_reviewed_RDD.saveAsTextFile(output_filepath)
