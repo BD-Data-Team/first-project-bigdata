@@ -1,4 +1,3 @@
-drop table if exists reviews;
 CREATE EXTERNAL TABLE if not exists reviews (
   id INT,
   product_id STRING,
