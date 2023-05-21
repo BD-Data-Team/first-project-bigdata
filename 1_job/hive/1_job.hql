@@ -1,5 +1,6 @@
-!hdfs dfs -cp ${hiveconf:dataset} ${hiveconf:input_dir}/copy/;
 drop table if exists reviews;
+-- !hdfs dfs -mkdir ${hiveconf:input_dir}/copy/;
+-- !hdfs dfs -cp ${hiveconf:dataset} ${hiveconf:input_dir}/copy/;
 CREATE TABLE  reviews (
   id INT,
   product_id STRING,
@@ -12,7 +13,7 @@ CREATE TABLE  reviews (
   summary STRING,
   text STRING
 ) row format delimited fields terminated BY ',' lines terminated BY '\n' 
-location '${hiveconf:input_dir}/copy/'
+-- location '${hiveconf:input_dir}/copy/'
 tblproperties("skip.header.line.count"="1");
 
 LOAD DATA INPATH '${hiveconf:dataset}' INTO TABLE reviews;
@@ -20,7 +21,7 @@ LOAD DATA INPATH '${hiveconf:dataset}' INTO TABLE reviews;
 -- compute number of reviews per year and product
 drop table if exists reviews_per_year;
 CREATE TABLE if not exists reviews_per_year AS
-SELECT review_year, product_id, collect_set(text) as texts, COUNT(*) as reviews_count
+SELECT review_year, product_id, collect_list(text) as texts, COUNT(*) as reviews_count
 FROM reviews
 GROUP BY review_year, product_id;
 

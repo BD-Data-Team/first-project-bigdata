@@ -44,29 +44,29 @@ input_DF = spark.read.csv(
     input_filepath, schema=custom_schema, header=True).cache()
 
 reviews_per_year_DF = input_DF.groupBy(
-    "reviews_year", "product_id").count().withColumnRenamed("count", "reviews_count")
+    "review_year", "product_id").count().withColumnRenamed("count", "reviews_count")
 
-win_temp = Window.partitionBy("reviews_year").orderBy(
+win_temp = Window.partitionBy("review_year").orderBy(
     reviews_per_year_DF["reviews_count"].desc())
 
 top_10_products_for_year_DF = reviews_per_year_DF.withColumn(
     "row_num", row_number().over(win_temp)).filter("row_num <= 10").drop("row_num").drop("reviews_count")
 
-join_condition = [top_10_products_for_year_DF.reviews_year == input_DF.reviews_year,
+join_condition = [top_10_products_for_year_DF.review_year == input_DF.review_year,
                   top_10_products_for_year_DF.product_id == input_DF.product_id]
 
 # drop necessary otherwise ambiguity column name error
 top_10_products_for_year_with_reviews_DF = top_10_products_for_year_DF.join(input_DF, join_condition).drop(
-    input_DF.product_id, input_DF.reviews_year).select("reviews_year", "product_id", "text")
+    input_DF.product_id, input_DF.review_year).select("review_year", "product_id", "text")
 
 top_10_products_for_year_with_reviews_DF = top_10_products_for_year_with_reviews_DF.withColumn(
     "word", explode(split(top_10_products_for_year_with_reviews_DF.text, " ")))
 
 year_for_product_2_word_count_DF = top_10_products_for_year_with_reviews_DF.groupBy(
-    "reviews_year", "product_id", "word").count().withColumnRenamed("count", "word_count")\
-    .where("length(word) >= 4").select("reviews_year", "product_id", "word", "word_count")
+    "review_year", "product_id", "word").count().withColumnRenamed("count", "word_count")\
+    .where("length(word) >= 4").select("review_year", "product_id", "word", "word_count")
 
-win_temp2 = Window.partitionBy("reviews_year", "product_id").orderBy(
+win_temp2 = Window.partitionBy("review_year", "product_id").orderBy(
     year_for_product_2_word_count_DF["word_count"].desc())
 
 output_DF = year_for_product_2_word_count_DF.withColumn(

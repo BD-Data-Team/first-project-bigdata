@@ -32,5 +32,5 @@ for line in sys.stdin:
 
 for year in year_for_product_2_sum:
     for product in dict(year_for_product_2_sum[year].most_common(10)).keys():
-        text_list = " ".join(year_for_product_2_text[year][product])
-        print(year, product, text_list, sep='\t')
+        for text in year_for_product_2_text[year][product]:
+            print(year, product, text, sep='\t')

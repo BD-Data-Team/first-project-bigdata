@@ -1,5 +1,6 @@
-!hdfs dfs -cp ${hiveconf:dataset} ${hiveconf:input_dir}/copy/;
 drop table if exists reviews;
+!hdfs dfs -mkdir ${hiveconf:input_dir}/copy/;
+!hdfs dfs -cp ${hiveconf:dataset} ${hiveconf:input_dir}/copy/;
 CREATE TABLE  reviews (
   id INT,
   product_id STRING,
