@@ -3,5 +3,4 @@
 output*
 *.pdf
 __pycache__/
-plots*
-data.json
+*.json
