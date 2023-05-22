@@ -34,4 +34,4 @@ hdfs dfs -rm -r $HDFS_FULL_JOB_OUTPUT_DIR_PATH
 
 
 JOB_DIR=$MAIN_DIR/$JOB_DIR_NAME/$2
-. $JOB_DIR/run.sh
+time . $JOB_DIR/run.sh
