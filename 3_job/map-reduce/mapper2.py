@@ -3,11 +3,11 @@
 
 import sys
 
+NUM_PARTITION = 2
 
 # read lines from STDIN (standard input)
 for line in sys.stdin:
     line = line.strip()
-    
     products_str, users_str = line.split("\t")
     
     if users_str == "":
@@ -15,10 +15,16 @@ for line in sys.stdin:
 
     users = users_str.split(",")
 
-    if len(users) < 3:
+    if len(users) <= 1:
         continue
 
-    print(line)
+    n = hash(line) % NUM_PARTITION
+    line = line.replace('\t', '|')
+    
+    for i in range(NUM_PARTITION):
+        print(f"{n}-{i}\tA--{line}")
+        print(f"{i}-{n}\tB--{line}")
+
 
 
 

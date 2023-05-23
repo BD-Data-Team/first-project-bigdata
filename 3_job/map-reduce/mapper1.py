@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """mapper.py"""
 
+# TODO: provare e capire perchè funziona
+# https://groups.google.com/g/mrjob/c/svMJPG9bsfM
+
 import sys
 import csv
 
@@ -23,5 +26,5 @@ for line in sys.stdin:
     except ValueError:
         continue
 
-    if score >= 4 and product_id != "" and user_id != "":
+    if score >= 4:
         print(f"{user_id}\t{product_id}")
