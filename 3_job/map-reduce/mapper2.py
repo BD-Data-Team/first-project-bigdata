@@ -18,6 +18,7 @@ for line in sys.stdin:
     if len(users) <= 1:
         continue
 
+    # n in [0, NUM_PARTITION]
     n = hash(line) % NUM_PARTITION
     line = line.replace('\t', '|')
     
