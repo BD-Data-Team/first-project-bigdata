@@ -1,7 +1,20 @@
 import matplotlib.pyplot as plt
 from statistics import mean, stdev
+import numpy as np
 import inflect
 
+def annot_max(x,y, ax=None):
+    y = np.array(y)
+    xmax = x[np.argmax(y)]
+    ymax = y.max()
+    text= "max time: {:.3f}s".format(ymax)
+    if not ax:
+        ax=plt.gca()
+    bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
+    arrowprops=dict(arrowstyle="->",connectionstyle="angle,angleA=0,angleB=60")
+    kw = dict(xycoords='data',textcoords="axes fraction",
+              arrowprops=arrowprops, bbox=bbox_props, ha="right", va="top")
+    ax.annotate(text, xy=(xmax, ymax), xytext=(0.94,0.96), **kw)
 
 def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percentage):
     # Plotting the statistics
@@ -21,6 +34,27 @@ def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percenta
     ax[1][0].plot(range(1, nTest+1), elapsed_times[1])
     ax[0][1].plot(range(1, nTest+1), elapsed_times[2])
     ax[1][1].plot(range(1, nTest+1), elapsed_times[3])
+
+    max_height = max([max(elapsed_times[0]), max(elapsed_times[1]), max( elapsed_times[2]), max(elapsed_times[3])])
+    min_height = min([min(elapsed_times[0]), min(elapsed_times[1]), min( elapsed_times[2]), min(elapsed_times[3])]) 
+    
+    space_range = max_height - min_height
+    offset = space_range * 0.8
+
+    ax[0][0].set_ylim([min_height - (offset/2), max_height + (offset/2)])
+    ax[0][1].set_ylim([min_height - (offset/2), max_height + (offset/2)])
+    ax[1][0].set_ylim([min_height - (offset/2), max_height + (offset/2)])
+    ax[1][1].set_ylim([min_height - (offset/2), max_height + (offset/2)])
+
+    annot_max(range(1, nTest+1), elapsed_times[0], ax[0][0])
+    annot_max(range(1, nTest+1), elapsed_times[1], ax[1][0])
+    annot_max(range(1, nTest+1), elapsed_times[2], ax[0][1])
+    annot_max(range(1, nTest+1), elapsed_times[3], ax[1][1])
+
+    # ax[0][0].set_yscale('log')
+    # ax[0][1].set_yscale('log')
+    # ax[1][0].set_yscale('log')
+    # ax[1][1].set_yscale('log')
 
     # Calcolo della media e della stdev del tempo di esecuzione al variare della dimensione del dataset
     mean_elapsed_time = [mean(mean_el) for mean_el in elapsed_times]
