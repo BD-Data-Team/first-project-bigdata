@@ -11,8 +11,10 @@ for line in sys.stdin:
     users = users_str.split(',')
     
     # filter out list with only one user
-    if len(users) < 3:
+    if len(users) <= 1:
         continue
+    users = sorted(users)
+    users_str = ",".join(sorted(users))
 
     user_0 = users[0]
     print(f"{user_0}\t{products_str}\t{users_str}")

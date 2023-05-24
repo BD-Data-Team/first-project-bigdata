@@ -1,9 +1,9 @@
-/datasets/*
 !*/README.md
-output*
-*.pdf
 __pycache__/
+/datasets/*
+output*
+*.png
+*.pdf
 *.json
 plots*
 AWS
-*.png
