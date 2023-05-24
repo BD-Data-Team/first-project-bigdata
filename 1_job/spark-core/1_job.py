@@ -60,28 +60,29 @@ def get_product_and_text(line):
 
 
 year_product_RDD = input_RDD.map(get_year_and_product)
+product_text_RDD = input_RDD.map(get_product_and_text)
 
 year_product_RDD = year_product_RDD.filter(
     lambda line: line != None)
 
-# output of this transformation: (year, [product_id, product_id, ...]) for each year
+# output of this transformation: (year, [product_id, productmap_id, ...]) for each year
 most_reviewed_RDD = year_product_RDD.groupByKey()
 
 
 # output of this transformation: ((year, productId),None), ((year, productId),None)) ...
-most_reviewed_RDD = most_reviewed_RDD.map(lambda line: (
+top_10_product_for_year_RDD = most_reviewed_RDD.map(lambda line: (
     line[0], [productId for productId, _ in Counter(line[1]).most_common(10)]))\
     .flatMap(lambda line: [((line[0], productId), None) for productId in line[1]])
 
 # output of this transformation: ((year, productId),(None, [text, text, text])
-product_text_RDD = input_RDD.map(get_product_and_text)
-most_reviewed_RDD = most_reviewed_RDD.join(product_text_RDD)
+top_10_for_year_with_reviews_RDD = top_10_product_for_year_RDD.join(
+    product_text_RDD)
 
 # get away the None values
-most_reviewed_RDD = most_reviewed_RDD.map(
+top_10_for_year_with_reviews_RDD = top_10_for_year_with_reviews_RDD.map(
     lambda line: (line[0], line[1][1]))
 
-most_reviewed_RDD = most_reviewed_RDD.groupByKey()
+top_10_for_year_with_reviews_RDD = top_10_for_year_with_reviews_RDD.groupByKey()
 
 # output of this transformation (year, productId, [(word, count), (word, count), ...]) list of 5 most common words for each product
 
@@ -94,10 +95,10 @@ def get_most_common_words(line):
     return (line[0], Counter(words).most_common(5))
 
 
-most_reviewed_RDD = most_reviewed_RDD.map(get_most_common_words)
-most_reviewed_RDD = most_reviewed_RDD.sortByKey()
+output_RDD = top_10_for_year_with_reviews_RDD.map(get_most_common_words)
+output_RDD = output_RDD.sortByKey()
 
-most_reviewed_RDD = most_reviewed_RDD.map(lambda line:
-                                          f"{line[0][0]}\t{line[0][1]}\t{line[1]}")
+output_RDD = output_RDD.flatMap(
+    lambda line: [f"{line[0][0]}\t{line[0][1]}\t{word}\t{count}"for word, count in line[1]])
 
-most_reviewed_RDD.saveAsTextFile(output_filepath)
+output_RDD.saveAsTextFile(output_filepath)

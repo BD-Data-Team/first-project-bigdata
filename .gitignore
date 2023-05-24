@@ -3,5 +3,7 @@
 output*
 *.pdf
 __pycache__/
+*.json
 plots*
 AWS
+*.png

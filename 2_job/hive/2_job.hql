@@ -1,6 +1,6 @@
 drop table if exists reviews;
-!hdfs dfs -mkdir ${hiveconf:input_dir}/copy/;
-!hdfs dfs -cp ${hiveconf:dataset} ${hiveconf:input_dir}/copy/;
+-- !hdfs dfs -mkdir ${hiveconf:input_dir}/copy/;
+-- !hdfs dfs -cp ${hiveconf:dataset} ${hiveconf:input_dir}/copy/;
 CREATE TABLE  reviews (
   id INT,
   product_id STRING,
@@ -13,7 +13,7 @@ CREATE TABLE  reviews (
   summary STRING,
   text STRING
 ) row format delimited fields terminated BY ',' lines terminated BY '\n' 
-location '${hiveconf:input_dir}/copy/'
+-- location '${hiveconf:input_dir}/copy/'
 tblproperties("skip.header.line.count"="1");
 
 LOAD DATA INPATH '${hiveconf:dataset}' INTO TABLE reviews;
@@ -24,4 +24,3 @@ FROM reviews
 WHERE NOT (helpfulness_numerator > helpfulness_denominator OR helpfulness_denominator <= 0.0)
 GROUP BY user_id
 ORDER BY appreciation DESC;
-drop table if exists reviews;
