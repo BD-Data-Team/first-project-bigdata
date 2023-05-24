@@ -74,6 +74,14 @@ for i in range(2):
     products_for_users_RDD = products_for_users_RDD.filter(
         lambda line: len(line[1]) >= 2)
 
+# products_for_users_RDD = products_for_users_RDD.sortBy(
+#     lambda line: list(line[1])[0])
+
+# products_for_users_RDD = products_for_users_RDD.groupBy(
+#     lambda line: line[0])
+
+print(products_for_users_RDD.take(10))
+
 # TODO:  Il risultato deve essere ordinato in base allo UserId del primo elemento del gruppo e non devono essere presenti duplicati.
 
-products_for_users_RDD.saveAsTextFile(output_filepath)
+# products_for_users_RDD.saveAsTextFile(output_filepath)
