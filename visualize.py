@@ -97,7 +97,7 @@ def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percenta
     plt.show()
 
 
-def barplot_execution_times(data, nJob):
+def barplot_times_to_compare_diff_implem(data, nJob):
     # Convert the number of jobs in an ordinal number
     p = inflect.engine()
 
@@ -130,6 +130,48 @@ def barplot_execution_times(data, nJob):
     # plt.yticks(range(0, int(max(hive_times))+20, 20))
 
     plt.title("Execution time of the " + p.ordinal(nJob) + " job")
+
+    # Aggiunta della legenda
+    plt.legend()
+
+    # Mostrare il grafico
+    plt.show()
+
+
+def barplot_times_to_compare_local_AWS(data, implementation):
+    # Convert the number of jobs in an ordinal number
+    p = inflect.engine()
+
+    # Calcolo delle percentuali del dataset utilizzate
+    percentages = [int(key) for key in data["first-local"].keys()]
+
+    # Preparazione dei dati per le barre
+    first_job_local_times = list(data["first-local"].values())
+    first_job_AWS_times = list(data["first-AWS"].values())
+    second_job_local_times = list(data["first-local"].values())
+    second_job_AWS_times = list(data["first-AWS"].values())
+
+    # Creazione del bar plot
+    bar_width = 0.2
+    index = range(len(percentages))
+
+    plt.bar(index, first_job_local_times, bar_width,
+            label=f"{p.ordinal(1)}-job-local")
+    plt.bar([i + bar_width for i in index],
+            first_job_AWS_times, bar_width, label=f"{p.ordinal(1)}-job-AWS")
+    plt.bar([i + 2 * bar_width for i in index],
+            second_job_local_times, bar_width, label=f"{p.ordinal(2)}-job-local")
+    plt.bar([i + 3 * bar_width for i in index],
+            second_job_AWS_times, bar_width, label=f"{p.ordinal(2)}-job-AWS")
+
+    # Configurazione dell'asse x
+    plt.xlabel("Dataset percentage %")
+    plt.ylabel("Execution time (seconds)")
+    plt.xticks([i + 1.5 * bar_width for i in index], percentages)
+
+    # plt.yticks(range(0, int(max(hive_times))+20, 20))
+
+    plt.title(f"Comparization of the execution times in {implementation}")
 
     # Aggiunta della legenda
     plt.legend()
