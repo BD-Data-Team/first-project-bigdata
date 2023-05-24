@@ -55,9 +55,13 @@ top_10_products_for_year_DF = reviews_per_year_DF.withColumn(
 join_condition = [top_10_products_for_year_DF.review_year == input_DF.review_year,
                   top_10_products_for_year_DF.product_id == input_DF.product_id]
 
+join_DF = input_DF.select(input_DF["review_year"].alias("ry"), input_DF["product_id"].alias("pi"), "text")
 # drop necessary otherwise ambiguity column name error
-top_10_products_for_year_with_reviews_DF = top_10_products_for_year_DF.join(input_DF, join_condition).drop(
-    input_DF.product_id, input_DF.review_year).select("review_year", "product_id", "text")
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_DF.join(join_DF, 
+    [top_10_products_for_year_DF["review_year"] == join_DF["ry"],
+    top_10_products_for_year_DF["product_id"] == join_DF["pi"]]).drop("ry", "pi")
+
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_with_reviews_DF.select("review_year", "product_id", "text")
 
 top_10_products_for_year_with_reviews_DF = top_10_products_for_year_with_reviews_DF.withColumn(
     "word", explode(split(top_10_products_for_year_with_reviews_DF.text, " ")))
