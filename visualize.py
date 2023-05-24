@@ -97,42 +97,7 @@ def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percenta
     plt.show()
 
 
-def barplot_execution_times(data, nJob):
-    # data = {
-    #     "map-reduce": {
-    #         100: 36.89401485761007,
-    #         200: 46.68291923205058,
-    #         250: 55.94427890141806,
-    #         500: 92.59772998174033,
-    #         750: 101.63732999801636,
-    #         1000: 188.92043952941893
-    #     },
-    #     "spark-core": {
-    #         100: 55.90394175847372,
-    #         200: 57.22622532844544,
-    #         250: 58.05035197575887,
-    #         500: 80.57014412562053,
-    #         750: 99.09985042254131,
-    #         1000: 122.45084574381511
-    #     },
-    #     "spark-sql": {
-    #         100: 36.39262241999309,
-    #         200: 43.82355433146159,
-    #         250: 49.13556230545044,
-    #         500: 63.73630240758259,
-    #         750: 89.41670737902322,
-    #         1000: 105.17730604489645
-    #     },
-    #     "hive": {
-    #         100: 115.15361097017922,
-    #         200: 100.12641709327697,
-    #         250: 106.37027971903483,
-    #         500: 167.28833905220034,
-    #         750: 209.77795018513999,
-    #         1000: 278.80231527646384
-    #     }
-    # }
-
+def barplot_times_to_compare_diff_implem(data, nJob):
     # Convert the number of jobs in an ordinal number
     p = inflect.engine()
 
@@ -151,11 +116,11 @@ def barplot_execution_times(data, nJob):
 
     plt.bar(index, map_reduce_times, bar_width, label="Map-Reduce")
     plt.bar([i + bar_width for i in index],
-            spark_core_times, bar_width, label="Spark-Core")
-    plt.bar([i + 2 * bar_width for i in index],
-            spark_sql_times, bar_width, label="Spark-SQL")
-    plt.bar([i + 3 * bar_width for i in index],
             hive_times, bar_width, label="Hive")
+    plt.bar([i + 2 * bar_width for i in index],
+            spark_core_times, bar_width, label="Spark-Core")
+    plt.bar([i + 3 * bar_width for i in index],
+            spark_sql_times, bar_width, label="Spark-SQL")
 
     # Configurazione dell'asse x
     plt.xlabel("Dataset percentage %")
@@ -165,6 +130,48 @@ def barplot_execution_times(data, nJob):
     # plt.yticks(range(0, int(max(hive_times))+20, 20))
 
     plt.title("Execution time of the " + p.ordinal(nJob) + " job")
+
+    # Aggiunta della legenda
+    plt.legend()
+
+    # Mostrare il grafico
+    plt.show()
+
+
+def barplot_times_to_compare_local_AWS(data, implementation):
+    # Convert the number of jobs in an ordinal number
+    p = inflect.engine()
+
+    # Calcolo delle percentuali del dataset utilizzate
+    percentages = [int(key) for key in data["first-local"].keys()]
+
+    # Preparazione dei dati per le barre
+    first_job_local_times = list(data["first-local"].values())
+    first_job_AWS_times = list(data["first-AWS"].values())
+    second_job_local_times = list(data["first-local"].values())
+    second_job_AWS_times = list(data["first-AWS"].values())
+
+    # Creazione del bar plot
+    bar_width = 0.2
+    index = range(len(percentages))
+
+    plt.bar(index, first_job_local_times, bar_width,
+            label=f"{p.ordinal(1)}-job-local")
+    plt.bar([i + bar_width for i in index],
+            first_job_AWS_times, bar_width, label=f"{p.ordinal(1)}-job-AWS")
+    plt.bar([i + 2 * bar_width for i in index],
+            second_job_local_times, bar_width, label=f"{p.ordinal(2)}-job-local")
+    plt.bar([i + 3 * bar_width for i in index],
+            second_job_AWS_times, bar_width, label=f"{p.ordinal(2)}-job-AWS")
+
+    # Configurazione dell'asse x
+    plt.xlabel("Dataset percentage %")
+    plt.ylabel("Execution time (seconds)")
+    plt.xticks([i + 1.5 * bar_width for i in index], percentages)
+
+    # plt.yticks(range(0, int(max(hive_times))+20, 20))
+
+    plt.title(f"Comparization of the execution times in {implementation}")
 
     # Aggiunta della legenda
     plt.legend()
