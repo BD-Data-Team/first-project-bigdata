@@ -137,7 +137,7 @@ def barplot_execution_times(data, nJob):
     p = inflect.engine()
 
     # Calcolo delle percentuali del dataset utilizzate
-    percentages = [int(key) / 10 for key in data["map-reduce"].keys()]
+    percentages = [int(key) for key in data["map-reduce"].keys()]
 
     # Preparazione dei dati per le barre
     map_reduce_times = list(data["map-reduce"].values())
