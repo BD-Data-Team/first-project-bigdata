@@ -10,8 +10,8 @@ for line in sys.stdin:
     line = line.strip()
     _, products, users = line.split('\t')
 
-    products_2_users[products] = ",".join(sorted(users.split(',')))
+    products_2_users[products] = users
 
 for products, users in products_2_users.items():
-    products_str = ",".join(sorted(products.split(',')))
+    products_str = ",".join(products.split(','))
     print(f"{products_str} -> {users}")

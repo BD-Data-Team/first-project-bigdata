@@ -3,7 +3,7 @@
 
 import sys
 
-NUM_PARTITION = 2
+NUM_PARTITION = 4
 
 # read lines from STDIN (standard input)
 for line in sys.stdin:

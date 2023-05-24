@@ -16,7 +16,6 @@ parser.add_argument("--output_path", type=str, help="Output folder path")
 # with the proper configuration
 spark = SparkSession \
     .builder \
-    .config("spark.driver.host", "localhost") \
     .config("spark.executor.memory", "5g") \
     .appName("Tird task") \
     .getOrCreate()
@@ -28,7 +27,7 @@ input_filepath, output_filepath = args.input_path, args.output_path
 df = spark.read.csv(input_filepath, header=True, inferSchema=True).cache()
 
 df = df.select("UserId", "ProductId").where(df["Score"] >= 4) \
-    .groupBy("ProductId").agg(collect_set("UserId").alias("Users"))
+    .groupBy("ProductId").agg(collect_set("UserId").alias("Users")).having(size("Users") > 3)
 
 df = df.withColumn("Products", array("ProductID"))
 

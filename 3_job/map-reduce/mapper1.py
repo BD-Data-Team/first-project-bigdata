@@ -27,4 +27,4 @@ for line in sys.stdin:
         continue
 
     if score >= 4:
-        print(f"{user_id}\t{product_id}")
+        print(f"{product_id}\t{user_id}")
