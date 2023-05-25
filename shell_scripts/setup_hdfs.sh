@@ -14,7 +14,7 @@ hdfs dfs -mkdir -p $HDFS_OUTPUT_DIR_PATH
 
 # put the dataset into the input directory in HDFS
 # for file in /media/francesco/A404F3C504F3990E/Users/stefa/Documenti/datasets_progetto_big_data/datasets/*
-for file in $DATASET_DIR_PATH/*
+for file in $FS_DATASETS_DIR/*
 do
     echo $file
 
