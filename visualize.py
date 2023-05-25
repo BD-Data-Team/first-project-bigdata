@@ -26,22 +26,19 @@ def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percenta
     # Convert the number of jobs in an ordinal number
     p = inflect.engine()
 
-    try:
-        assert len(elapsed_times) == 4
-    except AssertionError:
-        print("Error: elapsed_times must be a list of 4 elements")
-        return
+    fig, ax = plt.subplots(ncols=2, nrows=3, figsize=(10, 5))
+    print(elapsed_times)
+    ax[0][0].plot(range(1, nTest+1), list(elapsed_times.values())[0])
+    ax[1][0].plot(range(1, nTest+1), list(elapsed_times.values())[1])
+    ax[0][1].plot(range(1, nTest+1), list(elapsed_times.values())[2])
+    ax[1][1].plot(range(1, nTest+1), list(elapsed_times.values())[3])
+    ax[2][0].plot(range(1, nTest+1), list(elapsed_times.values())[4])
+    ax[2][1].plot(range(1, nTest+1), list(elapsed_times.values())[5])
 
-    fig, ax = plt.subplots(ncols=2, nrows=2, figsize=(10, 5))
-    ax[0][0].plot(range(1, nTest+1), elapsed_times[0])
-    ax[1][0].plot(range(1, nTest+1), elapsed_times[1])
-    ax[0][1].plot(range(1, nTest+1), elapsed_times[2])
-    ax[1][1].plot(range(1, nTest+1), elapsed_times[3])
-
-    max_height = max([max(elapsed_times[0]), max(elapsed_times[1]), max(
-        elapsed_times[2]), max(elapsed_times[3])])
-    min_height = min([min(elapsed_times[0]), min(elapsed_times[1]), min(
-        elapsed_times[2]), min(elapsed_times[3])])
+    max_height = max([max(times)
+                     for times in list(elapsed_times.values())])
+    min_height = min([max(times)
+                     for times in list(elapsed_times.values())])
 
     space_range = max_height - min_height
     offset = space_range * 0.8
@@ -51,10 +48,12 @@ def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percenta
     ax[1][0].set_ylim([min_height - (offset/2), max_height + (offset/2)])
     ax[1][1].set_ylim([min_height - (offset/2), max_height + (offset/2)])
 
-    annot_max(range(1, nTest+1), elapsed_times[0], ax[0][0])
-    annot_max(range(1, nTest+1), elapsed_times[1], ax[1][0])
-    annot_max(range(1, nTest+1), elapsed_times[2], ax[0][1])
-    annot_max(range(1, nTest+1), elapsed_times[3], ax[1][1])
+    annot_max(range(1, nTest+1), list(elapsed_times.values())[0], ax[0][0])
+    annot_max(range(1, nTest+1), list(elapsed_times.values())[1], ax[1][0])
+    annot_max(range(1, nTest+1), list(elapsed_times.values())[2], ax[0][1])
+    annot_max(range(1, nTest+1), list(elapsed_times.values())[3], ax[1][1])
+    annot_max(range(1, nTest+1), list(elapsed_times.values())[4], ax[2][0])
+    annot_max(range(1, nTest+1), list(elapsed_times.values())[5], ax[2][1])
 
     # ax[0][0].set_yscale('log')
     # ax[0][1].set_yscale('log')
@@ -62,7 +61,8 @@ def plot_statistics(nTest, elapsed_times, nJob, implementation, dataset_percenta
     # ax[1][1].set_yscale('log')
 
     # Calcolo della media e della stdev del tempo di esecuzione al variare della dimensione del dataset
-    mean_elapsed_time = [mean(mean_el) for mean_el in elapsed_times]
+    mean_elapsed_time = [mean(mean_el)
+                         for mean_el in list(elapsed_times.values())]
     # stdev_elapsed_time = [stdev(stdev_el) for stdev_el in elapsed_times]
 
     ax[0][0].plot(range(1, nTest+1),
@@ -110,6 +110,16 @@ def barplot_times_to_compare_diff_implem(data, nJob):
     spark_sql_times = list(data["spark-sql"].values())
     hive_times = list(data["hive"].values())
 
+    spark_core_times = [
+        float(value) if value != "N/A" else np.nan for value in spark_core_times]
+    spark_sql_times = [
+        float(value) if value != "N/A" else np.nan for value in spark_sql_times]
+
+    map_reduce_times = [
+        float(value) if value != "N/A" else np.nan for value in map_reduce_times]
+    hive_times = [
+        float(value) if value != "N/A" else np.nan for value in hive_times]
+
     # Creazione del bar plot
     bar_width = 0.2
     index = range(len(percentages))
@@ -135,6 +145,7 @@ def barplot_times_to_compare_diff_implem(data, nJob):
     plt.legend()
 
     # Mostrare il grafico
+    plt.tight_layout()
     plt.show()
 
 
@@ -166,7 +177,7 @@ def barplot_times_to_compare_local_AWS(data, implementation):
 
     # Configurazione dell'asse x
     plt.xlabel("Dataset percentage %")
-    plt.ylabel("Execution time (seconds)")
+    plt.ylabel("Execution time (minutes)")
     plt.xticks([i + 1.5 * bar_width for i in index], percentages)
 
     # plt.yticks(range(0, int(max(hive_times))+20, 20))
