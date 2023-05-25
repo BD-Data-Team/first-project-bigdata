@@ -70,12 +70,15 @@ for i in range(2):
         lambda x: x[0][0] != x[1][0])
     # output of this transformation: ([productId,productId, ...], [user_id, user_id, user_id, ...])
     products_for_users_RDD = products_for_users_RDD.map(lambda x: (x[0][0].union(
-        x[1][0]), x[0][1].intersection(set(x[1][1]))))
+        x[1][0]), x[0][1].intersection(x[1][1])))
     products_for_users_RDD = products_for_users_RDD.filter(
         lambda line: len(line[1]) >= 2)
 
+# products_for_users_RDD = products_for_users_RDD.map(
+#     lambda line: (line[0], list(line[1])))
+
 # products_for_users_RDD = products_for_users_RDD.sortBy(
-#     lambda line: list(line[1])[0])
+#     lambda line: line[1][0])
 
 # products_for_users_RDD = products_for_users_RDD.groupBy(
 #     lambda line: line[0])
