@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{babel}
+\usepackage[a4paper, total={6in, 10in}]{geometry}
+
+\usepackage{float}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{listings} % per scrittura di codice
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=cyan,      
+    urlcolor=magenta,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+    }
+
+
+\usepackage{graphicx}
+\graphicspath{{./images}}
+
+\definecolor{InlineGray}{HTML}{E3E3E3}
+
+% this style should be active for all lstlistings environments
+\lstdefinestyle{all}{
+ % columns=flexible,
+ tabsize=2,
+ columns=fixed,
+ keepspaces=true,
+ frameshape={}{y}{}{}, % per rimuovere la linea vericale sulla sinistra `frameshape={}{}{}{}`
+ basicstyle = {\ttfamily \color{black}},
+ showstringspaces=false,
+ rulecolor=\color{black},
+ numberstyle=\tiny\color{lightgray}
+}
+
+\lstdefinestyle{inline}{
+ basicstyle={\small\ttfamily \color{black}},
+ columns=fixed,
+ showstringspaces=false,
+}
+
+\lstdefinestyle{SQLStyle}
+{
+ language=SQL,
+ breaklines=true,
+ breakatwhitespace=true,
+ stringstyle=\color{red},
+ commentstyle=\color{gray},
+ keywordstyle=\color{violet},
+ keywordstyle=[2]\color{cyan},
+ keywordstyle=[3]\color{violet},
+ morekeywords=[2]{explode,split,length,row_number,array_intersect, array_union, sort_array},
+ morekeywords=[3]{PARTITION,LATERAL}
+}
+
+
+\lstdefinestyle{PythonStyle}
+{
+ language=Python,
+ breaklines=true,
+ breakatwhitespace=true,
+ stringstyle=\color{Bittersweet},
+ commentstyle=\color{darkgray},
+ keywordstyle=\color{violet},
+ keywordstyle=[2]\color{violet},
+ morekeywords=[2]{agg,avg,alias,sort,ascending,groupBy,withColumn,filter,join,withColumnRenamed,where,select,desc,drop,row_number,over}
+}
+
+\tcbset{on line, 
+    boxsep=2pt, left=0pt,right=0pt,top=0pt,bottom=0pt,
+    colframe=white,colback=InlineGray,
+}
+\newcommand{\codeinline}[1]{\tcbox{\lstinline[style=inline]|#1|}}
+
+\author{
+ Stefanelli Francesco \\
+ Matricola 538549\\
+ \texttt{fra.stefanelli3@stud.uniroma3.it}
+ \and
+ Galletti, Davide \\
+ Matricola 533152\\
+ \texttt{dav.galletti@stud.uniroma3.it}
+}
+
+\title{\huge\textbf{Report Primo Progetto Big Data}}
+\date{\textbf{Data Team} \\
+\href{https://github.com/BD-Data-Team/first-project-bigdata}{GitHub: data-team}\\
+Anno Accademico 2022/2023}
+
+
+
+\begin{document}
+\maketitle
+In questa relazione è stato documentato il lavoro svolto durante lo sviluppo del primo progetto del corso di Big data. La relazione di divide in tre sezioni: nella prima sezione è riportata la fase di preparazione dei dati, nella seconda è riportata l'implementazione dei tre job e nella terza si presentano i risultati e le prestazioni ottenute su cluster ed in locale.
+
+\section{Data preparation}
+\input{./data_preparation.tex}
+
+\section{Implementazione}\label{section:1}
+\input{./implementazione.tex}
+
+\newpage
+\section{Risultati e tempi di esecuzione}
+\input{./risultati_e_tempi_di_esecuzione.tex}
+
+\end{document}

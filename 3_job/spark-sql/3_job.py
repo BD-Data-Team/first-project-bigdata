@@ -27,7 +27,7 @@ input_filepath, output_filepath = args.input_path, args.output_path
 df = spark.read.csv(input_filepath, header=True, inferSchema=True).cache()
 
 df = df.select("UserId", "ProductId").where(df["Score"] >= 4) \
-    .groupBy("ProductId").agg(collect_set("UserId").alias("Users")).having(size("Users") > 3)
+    .groupBy("ProductId").agg(collect_set("UserId").alias("Users")).where(size("Users") > 3)
 
 df = df.withColumn("Products", array("ProductID"))
 
@@ -40,7 +40,7 @@ for i in range(2):
     df = df.select(array_union("Products1", "Products2").alias("Products"), array_intersect("Users1", "Users2").alias("Users")).distinct()
     df = df.where(size("Products") >= 2)
 
-df = df.orderBy(df["Users"][0])
+# df = df.orderBy(df["Users"][0])
 
 df = df.select(df["Products"].cast("string"), df["Users"].cast("string"))
 df.show(10)

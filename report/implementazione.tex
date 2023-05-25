@@ -1,0 +1,600 @@
+In questa sezione sono riportate le implementazioni dei vari job nelle tecnologie di \textbf{Map Reduce}, \textbf{Hive}, \textbf{Spark Core} e \textbf{Spark SQL}.
+
+\subsection{Job 1}
+\textit{Un job che sia in grado di generare, per ciascun anno, i 10 prodotti che hanno ricevuto il maggior numero di recensioni e, per ciascuno di essi, le 5 parole con almeno 4 caratteri più frequentemente usate nelle recensioni (campo text), indicando, per ogni parola, il numero di occorrenze della parola.}
+  \subsubsection{Map Reduce}
+  Per l'implementazione del primo job in map reduce si è pensato di suddividere l’elaborazione in due passate map reduce, dove:
+  \begin{itemize}
+    \item \textbf{Prima passata}: si calcolano i top 10 prodotti per ogni anno.
+    
+    \begin{algorithm}[!ht]
+    \caption{Mapper1}
+      \begin{algorithmic}[1]
+        \STATE \textbf{Input}: CSV data from STDIN
+        \STATE \textbf{Output}: year, product\_id and text of the review
+        \STATE Initialize $cols$ with dataset column names
+  
+        \FORALL{line in STDIN}
+        \STATE row $\gets$ parsed data from line based on $cols$
+        
+        \STATE skip CSV header
+    
+        \STATE $year \gets$ row[Year]
+        \STATE $product\_id \gets$ row[ProductId]
+        \STATE $text \gets$ row[Text]
+        
+        \STATE \textbf{print}(\{$year$\}\texttt{\textbackslash t}\{$product\_id$\}\texttt{\textbackslash t}\{$text$\})
+       \ENDFOR
+      \end{algorithmic}
+    \end{algorithm}
+
+    \begin{algorithm}[!ht]
+      \caption{Reducer1}
+      \begin{algorithmic}[1]
+      \STATE \textbf{Input}: input data from STDIN
+      \STATE \textbf{Output}: year, product\_id and text of the top 10 product for each year
+      \STATE Initialize $year\_for\_product\_2\_sum$ as a Counter Object
+      \STATE Initialize $year\_for\_product\_2\_text$ as a Dictionary
+      \FORALL{$line$ in STDIN}
+        \STATE $year$, $product\_id$, $text$ $\gets$ line.split("\texttt{\textbackslash t}")
+        \STATE $year\_for\_product\_2\_sum$[$year$][$product\_id$]$++$
+        \STATE $year\_for\_product\_2\_text$[$year$][$product\_id$].append($text$)
+      \ENDFOR
+      
+      \FORALL{$year$ in $year\_for\_product\_2\_sum$}
+        \STATE $top\_10\_products \gets$ top 10 in $year\_for\_product\_2\_sum$[$year$]
+        \FORALL{$product$ in $top\_10\_products$}
+          \FORALL{$text$ in $year\_for\_product\_2\_text$[$year$][$product$]}
+            \STATE \textbf{print} (\{$year$\}\texttt{\textbackslash t}\{$product$\}\texttt{\textbackslash t}\{$text$\})
+          \ENDFOR
+        \ENDFOR
+      \ENDFOR
+    \end{algorithmic}
+    \end{algorithm}
+\newpage
+    \item \textbf{Seconda passata}: si calcolano le 5 parole più frequenti per ciascuno dei top 10 prodotti di ogni anno.
+    
+    \begin{algorithm}[!ht]
+      \caption{Mapper2}
+      \begin{algorithmic}[1]
+      \STATE \textbf{Input}: input data from STDIN
+      \STATE \textbf{Output}: year, product\_id and the words with their relative count of the top 10 products for each year
+      
+      \FORALL{$line$ in STDIN}
+        \STATE $year$, $product\_id$, $text$ $\gets$ line.split("\texttt{\textbackslash t}")
+      
+        \STATE $words$ $\gets$ $text$.split(" ")
+
+        \STATE $counted\_words$ $\gets$ Dictionary of occurrences from $words$
+      
+        \FORALL{$word$, $count$ in $counted\_words$}
+          \IF{length($word$) $\geq$ 4}
+            \STATE \textbf{print} (\{$word$\}\texttt{\textbackslash t}\{$year$\}\texttt{\textbackslash t}\{$product\_id$\}\texttt{\textbackslash t}\{$count$\}"
+          \ENDIF
+        \ENDFOR
+      \ENDFOR
+    \end{algorithmic}
+    
+    \end{algorithm}
+    \begin{algorithm}[!ht]
+    \caption{Reducer2}
+    \begin{algorithmic}[1]
+    \STATE \textbf{Input}: input data from STDIN
+    \STATE \textbf{Output}: year, product\_id, words and their count of the 5 most common words of the top 10 products for each year 
+    \STATE Initialize $year\_for\_word\_2\_count$ as a Dictionary
+    \FORALL{line in STDIN}
+        \STATE $word$, $year$, $product\_id$, $count$ $\gets$ line.split("\texttt{\textbackslash t}")
+    
+    
+        \STATE $year\_for\_word\_2\_count$[$year$][$product\_id$][$word$] $\mathrel{+}= text{count}$
+    \ENDFOR
+    \FORALL{$year$ in $year\_for\_word\_2\_count$}
+        \FORALL{$product\_id$ in $year\_for\_word\_2\_count$[$year$]}
+            \STATE top\_5\_words $\gets$ top 5 words in $year\_for\_word\_2\_count$[$year$][$product\_id$]
+            \FORALL{$word$, $count$ in }
+                \STATE \textbf{print} (\{$year$\}\texttt{\textbackslash t}\{$product\_id$\}\texttt{\textbackslash t}\{$word$\}\texttt{\textbackslash t}\{$count$\})
+            \ENDFOR
+        \ENDFOR
+    \ENDFOR
+    \end{algorithmic}
+    \end{algorithm}  
+  \end{itemize}
+  
+\newpage
+  \subsubsection{Hive}
+  Per l'implementazione in Hive si è pensato di suddividere il job in varie query intermedie che facessero apprezzare meglio l'interrogazione completa, man mano salvate in tabelle. Le TABLE intermedie sono illustrate di seguito:
+  \begin{itemize}
+    \item \codeinline{reviews\_per\_year}: numero di recensioni di ciascun prodotto all'interno dell'anno.
+    \begin{lstlisting}[style = all, style = SQLStyle]
+CREATE TABLE if not exists reviews_per_year AS
+SELECT review_year, product_id, collect_list(text) as texts, COUNT(*) as reviews_count
+FROM reviews
+GROUP BY review_year, product_id;
+    \end{lstlisting}
+    \item \codeinline{top\_10\_products\_for\_year}: top 10 dei prodotti più recensiti per ciascun anno.
+    \begin{lstlisting}[style = all, style = SQLStyle]
+CREATE TABLE if not exists top_10_products_for_year AS
+SELECT review_year, product_id, texts
+FROM (
+        SELECT *, row_number() OVER (PARTITION BY review_year ORDER BY reviews_count DESC) as row_num
+        FROM reviews_per_year 
+    ) as ranked_reviews_per_year
+WHERE row_num <= 10; 
+    \end{lstlisting}
+    
+    \item \codeinline{year\_for\_product\_2\_word\_count}: calcolo delle occorrenze di ciascuna parola (con almeno 4 caratteri) di ciascun prodotto all'interno dell'anno.
+    \begin{lstlisting}[style=all, style = SQLStyle]
+CREATE TABLE if not exists year_for_product_2_word_count AS
+SELECT review_year, product_id, exploded_text.word as word, COUNT(*) as word_count
+FROM (
+  SELECT review_year, product_id, exploded_texts.text
+  FROM top_10_products_for_year
+  LATERAL VIEW explode(texts) exploded_texts AS text
+) AS t
+LATERAL VIEW explode(split(text, ' ')) exploded_text AS word
+WHERE length(exploded_text.word) >= 4
+GROUP BY review_year, product_id, exploded_text.word;
+    \end{lstlisting}
+    
+    \item \codeinline{output query}: top 10 dei prodotti più recensiti per ciascun anno con le 5 parole (con almeno 4 caratteri) più frequentemente usate.
+    \begin{lstlisting}[style=all, style = SQLStyle]
+SELECT review_year, product_id, word, word_count
+FROM (  SELECT *, row_number() OVER (PARTITION BY review_year, product_id ORDER BY word_count DESC) as row_num
+        FROM year_for_product_2_word_count 
+    ) as ranked_year_for_product_2_word_count
+WHERE row_num <= 5;
+    \end{lstlisting}
+  \end{itemize}
+  
+  
+  \subsubsection{Spark Core}
+  \begin{algorithm}
+    \caption{Spark Application}
+    \begin{algorithmic}[1]
+    
+    \STATE \textbf{Input}: input dataset
+    \STATE \textbf{Output}: text file containing the 5 most common words for each of the 10 most common products of each year from the input dataset
+    
+    \STATE Initialize $input\_rdd$ from the input dataset
+    \STATE Filter out the header line from the $input\_rdd$
+    
+    \STATE $year\_and\_product\_rdd$ $\gets$ Map ($year$,$product\_id$) from $input\_rdd$
+    \STATE $productId\_and\_text\_rdd$ $\gets$ Map (($year$,$product\_id$),$text$) from $input\_rdd$
+    \STATE Group $year\_and\_product\_rdd$ by $year$
+    \STATE $top\_10\_for\_each\_year\_rdd$ $\gets$ Map and flatten $year\_and\_product\_rdd$ to get (year, product) pairs for the 10 most reviewed products for each year
+    
+    \STATE $top\_10\_for\_each\_year\_with\_reviews\_rdd$ $\gets$ Join the $top\_10\_for\_each\_year\_rdd$ with $productId\_and\_text\_rdd$
+    
+    \STATE Group the $top\_10\_for\_each\_year\_with\_reviews\_rdd$ by year and productId
+    
+    \STATE Define a function to get the most common words for each (year, product) pair
+    
+    \STATE $output\_rdd$ $\gets$ Map the $top\_10\_for\_each\_year\_with\_reviews\_rdd$ to get the most common words for each (year, product) pair
+    \STATE Save the $output\_rdd$ as text files
+    
+    \end{algorithmic}
+    \end{algorithm}
+
+  \subsubsection{Spark SQL}
+  L'implementazione del primo job in spark-sql è stata divisa nelle seguenti operazioni:
+  \begin{itemize}
+    \item \codeinline{reviews\_per\_year\_DF}: numero di recensioni di ciascun prodotto all'interno dell'anno.
+  \begin{lstlisting}[style=all, style=PythonStyle]
+reviews_per_year_DF = input_DF.groupBy( "review_year", "product_id").count().withColumnRenamed("count", "reviews_count")
+  \end{lstlisting}
+    \item \codeinline{top\_10\_products\_for\_year\_DF}: top 10 dei prodotti più recensiti per ciascun anno.
+  \begin{lstlisting}[style=all, style=PythonStyle]
+win_temp = Window.partitionBy("review_year").orderBy(
+    reviews_per_year_DF["reviews_count"].desc())
+top_10_products_for_year_DF = reviews_per_year_DF.withColumn("row_num", row_number().over(win_temp)).filter("row_num <= 10").drop("row_num").drop("reviews_count")
+\end{lstlisting}
+  \item \codeinline{top\_10\_products\_for_year\_with\_reviews\_DF}: top 10 dei prodotti per ciascun anno con le recensioni.
+     \begin{lstlisting}[style=all, style=PythonStyle]
+join_condition = [top_10_products_for_year_DF.review_year == input_DF.review_year, top_10_products_for_year_DF.product_id == input_DF.product_id]
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_DF.join(input_DF, join_condition).drop(input_DF.product_id, input_DF.review_year).select("review_year", "product_id", "text")
+\end{lstlisting}
+
+    \item \codeinline{year\_for\_product\_2_word\_count\_DF}: calcolo delle occorrenze di ciascuna parola (con almeno 4 caratteri) di ciascun prodotto all'interno dell'anno.
+     \begin{lstlisting}[style=all, style=PythonStyle]
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_with_reviews_DF.withColumn("word", explode(split(top_10_products_for_year_with_reviews_DF.text, " ")))
+year_for_product_2_word_count_DF = top_10_products_for_year_with_reviews_DF.groupBy( "review_year", "product_id", "word").count().withColumnRenamed("count", "word_count")\ .where("length(word) >= 4").select("review_year", "product_id", "word", "word_count")
+\end{lstlisting}
+
+    \item \codeinline{output\_DF}: top 10 dei prodotti più recensiti per ciascun anno con le 5 parole (con almeno 4 caratteri) più frequentemente usate.
+     \begin{lstlisting}[style=all, style=PythonStyle]
+win_temp2 = Window.partitionBy("review_year", "product_id").orderBy( year_for_product_2_word_count_DF["word_count"].desc())
+output_DF = year_for_product_2_word_count_DF.withColumn("row_num", row_number().over(win_temp2)).filter("row_num <= 5").drop("row_num").drop("reviews_count")
+\end{lstlisting}
+  \end{itemize}
+
+
+\newpage
+\subsection{Job 2}
+\textit{Un job che sia in grado di generare una lista di utenti ordinata sulla base del loro apprezzamento, dove l’apprezzamento di ogni utente è ottenuto dalla media dell’utilità (rapporto tra HelpfulnessNumerator e HelpfulnessDenominator) delle recensioni che hanno scritto, indicando per ogni utente il loro apprezzamento.}
+
+  \subsubsection{Map Reduce}
+    Per l'implementazione del primo job in map reduce si è pensato di suddividere l'eleborazione in due passate map reduce, dove:
+  \begin{itemize}
+    \item \textbf{Prima passata}: si effettua l'estrazione dei valori di User Id, Helpfulness Numerator e Denominator per il calcolo dell'Apprezzamento (Appreciation) di ogni utente;
+    \begin{algorithm}[!ht]
+    \caption{Mapper1}
+      \begin{algorithmic}[1]
+        \STATE \textbf{Input}: CSV data from STDIN
+        \STATE \textbf{Output}: user\_id and usefulness
+        \STATE Initialize $cols$ with dataset column names
+  
+        \FORALL{line in STDIN}
+        \STATE row $\gets$ parsed data from line based on $cols$
+        
+        \STATE skip CSV header
+    
+        \STATE $user\_id \gets$ row[UserId]
+        \STATE $helpfulness\_num \gets$ row[HelpfulnessNumerator]
+        \STATE $helpfulness\_den \gets$ row[HelpfulnessDenominator]
+        
+        \IF{$helpfulness\_num > helpfulness\_den \,\|\, helpfulness\_den \leq 0$}
+         \STATE \textbf{continue}
+        \ENDIF
+      
+        \STATE $usefulness \gets helpfulness\_num \,/\, helpfulness\_den$
+        
+        \STATE \textbf{print}(\{$user\_id$\}\texttt{\textbackslash t}\{$usefulness$\})
+       \ENDFOR
+      \end{algorithmic}
+    \end{algorithm}
+    \begin{algorithm}[!ht]
+      \caption{Reducer1}
+      \begin{algorithmic}[1]
+        \STATE \textbf{Input}: input data from STDIN
+        \STATE \textbf{Output}: user and appreciation
+        \STATE Initialize $user\_2\_count$ as a Counter object
+        \STATE Initialize $user\_2\_usefulness$ as a Counter object
+        
+        \FORALL{line in STDIN}
+          \STATE $id,\, usefulness \gets$ split line using tab character \texttt{\textbackslash t}
+            \STATE Increment $user\_2\_count[id]$ by 1
+            \STATE Increment $user\_2\_usefulness[id]$ by $curr\_usefulness$
+        \ENDFOR
+        
+        \FORALL{$user$ in $user\_2\_count$}
+          \STATE $appreciation \gets user\_2\_usefulness[user] \,/\, user\_2\_count[user]$
+          \STATE \textbf{print}(\{$user$\}\texttt{\textbackslash t}\{$appreciation$\})
+        \ENDFOR
+      \end{algorithmic}
+    \end{algorithm}
+    \item \textbf{Seconda passata}: si effettua il sort dell'output della prima passata sulla base del valore di Apprezzamento (Appreciation) del singolo utente.
+    \begin{algorithm}[!ht]
+    \caption{Mapper2}
+    \begin{algorithmic}[1]
+    \STATE \textbf{Input}: input data from STDIN
+    \STATE \textbf{Output}: appreciation and user
+    \FORALL{line in input data}
+      \STATE user, appreciation $\gets$ line.split("\texttt{\textbackslash t}")
+      \STATE \textbf{print} \{$appreciation$\}\texttt{\textbackslash t}\{$user$\}
+    \ENDFOR
+  \end{algorithmic}
+  \end{algorithm}
+
+  \begin{algorithm}
+    \caption{Reducer2}
+    \begin{algorithmic}[1]
+    \STATE \textbf{Input}: input data from STDIN
+    \STATE \textbf{Output}: user and appreciation
+    
+    \FORALL{line in input data}
+      \STATE line $\gets$ line.strip()
+      \STATE appreciation, user $\gets$ line.split("\texttt{\textbackslash t}")
+      \STATE \textbf{print} \{$user$\}\texttt{\textbackslash t}\{$appreciation$\}
+    \ENDFOR
+    
+    \end{algorithmic}
+  \end{algorithm}
+  \end{itemize}
+
+\newpage
+  \subsubsection{Hive}
+  Per l'implementazione del secondo job in hive è stata effettua tutta l'operazione di calcolo in una singola query utilizzando la funzione di media.
+
+\begin{lstlisting}[style = all, style = SQLStyle]
+SELECT user_id, AVG(helpfulness_numerator / helpfulness_denominator) as appreciation
+FROM reviews
+WHERE NOT (helpfulness_numerator > helpfulness_denominator OR helpfulness_denominator <= 0.0)
+GROUP BY user_id
+ORDER BY appreciation DESC;
+\end{lstlisting}
+  
+  
+  \subsubsection{Spark Core}
+  Per l'implementazione del secondo job in spark-core sono state applicate tre funzioni di \codeinline{map()}, una \codeinline{reduceByKey()}, due funzioni \codeinline{filter()} ed una \codeinline{sortBy()}.
+  \begin{algorithm}
+    \caption{Spark Application}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input}: input dataset
+        \STATE \textbf{Output}: a text file containing $user\_ids$ and their relative $appreciation$, sorted by value
+        
+        \STATE Define $transform\_data()$: a function that extracts the helpfulnessNumerator and helpfulnessDenominator from a dataset line and compute its division
+        \STATE Initialize $input\_rdd$ from the input dataset
+        \STATE Filter out the header line from the $input\_rdd$
+
+        \STATE $helpfulness\_rdd$ $\gets$ Map ($user\_id$, $helpfulness$) from $input\_rdd$ using $transform\_data()$
+        \STATE Filter out $helpfulness > 1.0$ from $helpfulness\_rdd$
+
+        \STATE $helpfulness\_rdd$ $\gets$ Map ($user\_id$, ($helpfulness$, 1)) from $helpfulness\_rdd$
+        
+        \STATE $helpfulness\_rdd$ $\gets$ Reduce By Key ($user\_id$, (sum of $helpfulness$,  sum of 1)) from $helpfulness\_rdd$
+        
+        \STATE $appreciation\_rdd$ $\gets$ Map ($user\_id$, $helpfulness\_sum\,/\, count$) from $helpfulness\_rdd$
+        
+        \STATE $appreciation\_rdd$ $\gets$ Sort By Value $appreciation\_rdd$
+
+        \STATE Save as text file $appreciation\_rdd$
+    \end{algorithmic}
+    \end{algorithm}
+    
+  
+  \subsubsection{Spark SQL}
+  Per l'implementazione del secondo job in spark-sql è stata divisa in due operazioni:
+  \begin{itemize}
+    \item \textbf{Prima operazione}: Calcolo dell'\codeinline{appreciation} per ciascun \codeinline{product\_id} partendo dal dataset di input per mezzo di una proiezione ed una operazione di media.
+  \begin{lstlisting}[style=all, style=PythonStyle]
+# df = dataframe containing the input dataset
+df = df.withColumn("Helpfulness", df["HelpfulnessNumerator"] / df["HelpfulnessDenominator"]) \
+.groupBy("UserId").agg(F.avg("Helpfulness").alias("Appreciation"))
+  \end{lstlisting}
+    \item \textbf{Seconda operazione}: Filtraggio e Sort su \codeinline{Appreciation}
+  \begin{lstlisting}[style=all, style=PythonStyle]
+df = df.filter(df["Appreciation"] <= 1.0) \
+    .sort("Appreciation", ascending=False)
+  \end{lstlisting}
+  \end{itemize}
+  
+\subsection{Job 3}
+\textit{Un job in grado di generare gruppi di utenti con gusti affini, dove gli utenti hanno gusti affini se hanno recensito con score superiore o uguale a 4 almeno 3 prodotti in comune, indicando, per ciascun gruppo, i prodotti condivisi. Il risultato deve essere ordinato in base allo UserId del primo elemento del gruppo e non devono essere presenti duplicati.}
+  \subsubsection{Map Reduce}
+  Per l'implementazione del primo job in map reduce si è pensato di suddividere l'eleborazione in quattro passate map reduce, dove:
+  \begin{itemize}
+      \item \textbf{Prima passata}: si effettua il la rimozione delle \codeinline{reviews} che non presentano uno score di almeno \codeinline{4} e si creano delle liste di utenti per ciascun prodotto filtrando i prodotti che non sono stati comprati da almeno due utenti 
+
+      \begin{algorithm}[!ht]
+    \caption{Mapper1}
+      \begin{algorithmic}[1]
+        \STATE \textbf{Input}: CSV data from STDIN
+        \STATE \textbf{Output}: product\_id and user\_id of the reviews with a score >=
+        \STATE Initialize $cols$ with dataset column names
+  
+        \FORALL{line in STDIN}
+        \STATE row $\gets$ parsed data from line based on $cols$
+        
+        \STATE skip CSV header
+    
+        \STATE $user\_id \gets$ row[UserId]
+        \STATE $product\_id \gets$ row[ProductId]
+        \STATE $score \gets$ row[Score]
+
+        \IF{$score >= 4$}
+            \STATE \textbf{print}(\{$product\_id$\}\texttt{\textbackslash t}\{$user\_id$\}) 
+        \ENDIF
+       \ENDFOR
+      \end{algorithmic}
+    \end{algorithm}
+
+    \begin{algorithm}[!ht]
+      \caption{Reducer1}
+      \begin{algorithmic}[1]
+      \STATE \textbf{Input}: input data from STDIN
+      \STATE \textbf{Output}: product\_id and the list of users who have bought this product\_id 
+      \STATE Initialize $product\_2\_users$ as a Dictionary of Sets
+      \FORALL{$line$ in STDIN}
+        \STATE $product\_id$, $user\_id$ $\gets$ line.split("\texttt{\textbackslash t}")
+        \STATE $product\_2\_users$[$product\_id$].append($user\_id$)
+      \ENDFOR
+      
+      \FORALL{$product\_id$ in $product\_2\_users$}
+        \IF{\textbf{size}($product\_2\_users$[$product\_id$]) $>= 2$}
+        \STATE \textbf{print}(\{$product\_id$\}\texttt{\textbackslash t}\{$product\_2\_users$[$product\_id$]\})
+        \ENDIF
+      \ENDFOR
+    \end{algorithmic}
+    \end{algorithm}
+    
+\newpage
+
+    \item \textbf{Seconda e terza passata}: Questo step viene eseguito due volte di fila e si calcola l'insieme di utenti che hanno comprato un determinato insieme di prodotti. (Applicaldo il ragionamento per 2 volte si ottengono liste di 3/4 prodotti e tutti gli utenti che li hanno comprati.)
+
+      \begin{algorithm}[!ht]
+    \caption{Mapper2}
+      \begin{algorithmic}[1]
+        \STATE \textbf{Input}: CSV data from STDIN
+        \STATE \textbf{Output}: partition\_key, [A / B] and the input line
+        \STATE Define $N\_Partition$ as the number of nodes in the cluster
+        
+        \FORALL{line in STDIN}
+        \STATE $products\_list$, $users\_list$ $\gets$ line.split("\texttt{\textbackslash t}")
+
+        \IF{\textbf{size}($users\_list$) > 1}
+            \STATE $node\_number \gets$ \textbf{hash}($products\_list$)
+
+            \FOR{$i$ in $1$..$N\_Partition$}
+                \STATE $partition\_key\_A \gets$ "\{$node\_number$\}-\{$i$\}"
+                \STATE $partition\_key\_B \gets$ "\{$i$\}-\{$node\_number$\}"
+                \STATE \textbf{print}("\{$partition\_key\_A$\}\texttt{\textbackslash t}A-\{$line$\}")
+                \STATE \textbf{print}("\{$partition\_key\_B$\}\texttt{\textbackslash t}B-\{$line$\}")
+            \ENDFOR
+            
+        \ENDIF
+        
+       \ENDFOR
+      \end{algorithmic}
+    \end{algorithm}
+
+    \begin{algorithm}[!ht]
+      \caption{Reducer2}
+      \begin{algorithmic}[1]
+      \STATE \textbf{Input}: input data from STDIN
+      \STATE \textbf{Output}: a list of products and the list of users who bought them
+      \STATE Initialize $list\_A$ as an empty list
+      \STATE Initialize $list\_B$ as an empty list
+      \FORALL{$in\_line$ in STDIN}
+        \STATE $partition\_key\_X$, $X\_line$ $\gets$ $in\_line$.split("\texttt{\textbackslash t}")
+        \STATE $X$, $line \gets$ $X\_line$.split("-")
+        \IF{$X$ == "A"}
+            \STATE $list\_A$.append($line$)
+        \ELSE
+            \STATE $list\_B$.append($line$)
+        \ENDIF
+      \ENDFOR
+      
+      \FORALL{$line1$, $line2$ pairs in $list\_A$.cartesian($list\_B$)}
+        \STATE $products1$, $users1$ in $line1$
+        \STATE $products2$, $users2$ in $line2$
+
+        \STATE $common\_users \gets users1$.intersect($users2$) 
+        \STATE $common\_products \gets products1$.union($products2$)
+
+        \IF{\textbf{size}($common\_users$) $>$ 1}
+        \STATE \textbf{print}(\{$common\-products$\}\texttt{\textbackslash t}\{$common\_users$]\})
+        \ENDIF
+      \ENDFOR
+    \end{algorithmic}
+    \end{algorithm}
+    
+    \newpage
+    \item \textbf{Quarta passata}: si effettua il sort sulla base del primo elemento della lista di utenti e si eliminano le ennuple duplicate.
+
+          \begin{algorithm}[!ht]
+    \caption{Mapper3}
+      \begin{algorithmic}[1]
+        \STATE \textbf{Input}: CSV data from STDIN
+        \STATE \textbf{Output}: all list of products and the list of users who bought them
+        
+        \FORALL{line in STDIN}
+        \STATE $products\_list$, $users\_list$ $\gets$ line.split("\texttt{\textbackslash t}")
+        \STATE \textbf{print}("\{$users\_list$[0]\}\texttt{\textbackslash t}\{$products\_list$\}\texttt{\textbackslash t}\{$users\_list$\}")
+        
+       \ENDFOR
+      \end{algorithmic}
+    \end{algorithm}
+    
+    \begin{algorithm}[!ht]
+      \caption{Reducer3}
+      \begin{algorithmic}[1]
+      \STATE \textbf{Input}: input data from STDIN
+      \STATE \textbf{Output}: a set of tuples containing for each $users\_list$ a set of $products$ that each group is defined as who reviewed with a score greater than or equal to 4 at least 3 products in common, sorted by the $user_id$ of the first element of the group and without duplicates.
+      \STATE Initialize $dedup\_set$ as a Set
+
+      \FORALL{$line$ in STDIN}
+        \STATE $user\_0$, $products\_list$, $users\_list \gets$ $line$.split("\texttt{\textbackslash t}")
+        \STATE $dedup\_set$.append("\{$products\_list$\}\texttt{\textbackslash t}\{$users\_list$\}")
+      \ENDFOR
+      
+      \FORALL{$line$ in $dedup\_set$}
+        \STATE \textbf{print}($line$)
+      \ENDFOR
+    \end{algorithmic}
+    \end{algorithm}    
+  \end{itemize}
+
+\newpage
+  \subsubsection{Hive}
+    Per l'implementazione in Hive del terzo job si è pensato di suddividere l’elaborazione in varie query intermedie che facessero apprezzare meglio l’interrogazione completa, man mano salvate in tabelle. Le tabelle intermedie sono illustrate di seguito (sono state utilizzate 2 funzioni User Defined \codeinline{array_intersect} e \codeinline{array_union} prese dal repo di \href{https://github.com/klout/brickhouse/tree/8fce0ac98aef422772ac89de7a620caac47ccc9d}{brickhouse}):
+\begin{itemize}
+    \item \codeinline{rated\_products}: selezione delle reviews che presentano uno \codeinline{score >= 4}.
+    \begin{lstlisting}[style=all, style=SQLStyle]
+CREATE TABLE if not exists rated_products as
+SELECT product_id, user_id
+FROM reviews
+WHERE score >= 4;
+\end{lstlisting}
+    \item \codeinline{product\_2\_users}: tabella che contiene per ciascun \codeinline{product\_id} il relativo insieme di \codeinline{product\_id} che hanno comprato quei prodotti.
+    \begin{lstlisting}[style=all, style=SQLStyle]
+CREATE TABLE if not exists product_2_users as
+SELECT array(product_id) as products, collect_set(user_id) as users
+FROM rated_products
+GROUP BY product_id
+HAVING count(*) > 1 AND product_id IS NOT NULL;
+\end{lstlisting}
+    \item \codeinline{product_2_users_1}: prodotto cartesiano tra la tabella \codeinline{product\_2\_users} con se stessa sul quale andiamo a calcolare per ciascuna coppia creata l'intersezione tra l'insieme di utenti e l’unione delle liste dei prodotti
+\begin{lstlisting}[style=all, style=SQLStyle]
+CREATE TABLE if not exists  product_2_users_1 as
+SELECT sort_array(array_union(p1.products, p2.products)) as products, sort_array(array_intersect(p1.users, p2.users)) as users
+FROM product_2_users p1 CROSS JOIN product_2_users p2
+WHERE p1.products[0] < p2.products[0] AND size(array_intersect(p1.users, p2.users)) >= 2;
+\end{lstlisting}
+    \item \codeinline{product_2_users_2}: la stessa query di prima ma effettuata sulla tabella di \codeinline{product_2_users_1}
+\begin{lstlisting}[style=all, style=SQLStyle]
+CREATE TABLE if not exists  product_2_users_2 as
+SELECT sort_array(array_union(p1.products, p2.products)) as products, sort_array(array_intersect(p1.users, p2.users)) as users
+FROM product_2_users_1 p1 CROSS JOIN product_2_users_1 p2
+WHERE p1.products[0] < p2.products[0] AND size(array_intersect(p1.users, p2.users)) >= 2;
+\end{lstlisting}
+
+    \item \codeinline{products_2_users_sorted}: la stessa tabella di prima ma senza valori duplicati e ordinata sulla base del primo elemento della lista di utenti.
+\begin{lstlisting}[style=all, style=SQLStyle]
+CREATE TABLE if not exists  products_2_users_sorted as
+SELECT distinct(products), users
+FROM product_2_users_2
+ORDER BY users[0] ASC;
+\end{lstlisting}
+\newpage
+
+\end{itemize}
+  \subsubsection{Spark Core}
+      Per l'implementazione del terzo job in spark-core sono state applicate quattro funzioni \codeinline{map()}, due \codeinline{filter()}, due \codeinline{groupByKey()} ed una \codeinline{sortBy()}.
+  \begin{algorithm}
+    \caption{Spark Application}
+    \begin{algorithmic}[1]
+        \STATE \textbf{Input}: input dataset
+        \STATE \textbf{Output}: a text file containing for each group of $user\_id$ a set of $product\_id$ that each group is defined as who reviewed with a score greater than or equal to 4 at least 3 products in common, sorted by the $user_id$ of the first element of the group and without duplicates.
+        
+        \STATE Define $get\_users\_for\_productId()$: a function that returns the productId and userId with score >= 4 from a dataset line
+        \STATE Initialize $input\_rdd$ from the input dataset
+        \STATE \textbf{Filter} out the header line from the $input\_rdd$
+
+        \STATE $productId\_for\_users\_rdd$ $\gets$ \textbf{Map} ($product\_id$, $user\_id$) from $input\_rdd$ using $get\_users\_for\_productId()$
+        \STATE $products\_for\_users\_rdd$ $\gets$ \textbf{Group By Key} ($product\_id$, List of $user\_id$) from $productId\_for\_users\_rdd$
+        \STATE $products\_for\_users\_rdd$ $\gets$ \textbf{Map} (Set of $product\_id$ as \textbf{$products$}, Set of $user\_id$ as \textbf{$users$}) from $products\_for\_users\_rdd$
+        \FOR{\texttt{$i$ in $1$..$2$}}
+            \STATE $products\_for\_users\_rdd$ $\gets$ \textbf{Cartesian Product} (($products$, $users$), ($products$, $users$))
+            \STATE $products\_for\_users\_rdd \gets$ \textbf{Map} ($products$ Union as $products$, \\ $users$ Intersection as $users$)
+            \STATE \textbf{Filter} out line with \textbf{size}($users$) $< 2$ from $products\_for\_users\_rdd$
+        \ENDFOR
+        \STATE $products\_for\_users\_rdd$ $\gets$ \textbf{Group By} ($products$) 
+        \STATE $products\_for\_users\_rdd$ $\gets$ \textbf{Sort By} ($user\_id$ of the first element of the group) 
+
+        \STATE Save as text file $products\_for\_users\_rdd$
+    \end{algorithmic}
+    \end{algorithm}
+    
+  \subsubsection{Spark SQL}
+  L'implementazione del terzo job in spark-sql è stata divisa nelle seguenti operazioni:
+  \begin{itemize}
+    \item \codeinline{productId\_for\_users\_DF}: set di almeno 2 utenti che hanno recensito score $>=4$ quel prodotto.
+  \begin{lstlisting}[style=all, style=PythonStyle]
+productId_for_users_DF = input_DF.select("UserId", "ProductId").where(input_DF["Score"] >= 4) \ .groupBy("ProductId").agg(collect_set("UserId").alias("Users"))\
+.where(size("Users") > 3)
+  \end{lstlisting}
+    \item \codeinline{products\_for\_users\_DF}: prodotto inserito nella propria lista di prodotti con solo se stesso come elemento.
+  \begin{lstlisting}[style=all, style=PythonStyle]
+products_for_users_DF = productId_for_users_DF.withColumn("Products", array("ProductID"))
+\end{lstlisting}
+  \item \codeinline{products\_for\_users\_DF}: gruppi di utenti con almeno tre prodotti in comune.
+     \begin{lstlisting}[style=all, style=PythonStyle]
+for i in range(2):
+    products_for_users_DF = products_for_users_DF.withColumnRenamed("Users","Users1")\ .withColumnRenamed("Products", "Products1") \ .crossJoin(products_for_users_DF.withColumnRenamed("Users", "Users2")
+    .withColumnRenamed("Products", "Products2")) \
+    .where(F.col("Products1") < F.col("Products2"))
+    products_for_users_DF = products_for_users_DF.select(array_union("Products1","Products2").alias("Products"), array_intersect("Users1", "Users2").alias("Users")).distinct() products_for_users_DF = products_for_users_DF.where(size("Products") >= 2)
+\end{lstlisting}
+
+    \item \codeinline{year\_for\_product\_2_word\_count\_DF}: calcolo delle occorrenze di ciascuna parola (con almeno 4 caratteri) di ciascun prodotto all'interno dell'anno.
+     \begin{lstlisting}[style=all, style=PythonStyle]
+top_10_products_for_year_with_reviews_DF = top_10_products_for_year_with_reviews_DF.withColumn("word", explode(split(top_10_products_for_year_with_reviews_DF.text, " ")))
+year_for_product_2_word_count_DF = top_10_products_for_year_with_reviews_DF.groupBy( "review_year", "product_id", "word").count().withColumnRenamed("count", "word_count")\ .where("length(word) >= 4").select("review_year", "product_id", "word", "word_count")
+\end{lstlisting}
+
+    \item \codeinline{output\_DF}: rimozione dei duplicati e ordinamento in base allo UserId del primo elemento del gruppo.
+     \begin{lstlisting}[style=all, style=PythonStyle]
+output_DF = products_for_users_DF.groupBy("Products")\
+.orderBy(products_for_users_DF["Users"][0])
+\end{lstlisting}
+  \end{itemize}

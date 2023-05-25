@@ -1,0 +1,460 @@
+In questa sezione sono riportati gli output e le prestazioni ottenute dall'esecuzione delle varie implementazioni. Al fine di effettuare vari test comparativi prestazionali sulle diverse implementazioni utilizzate per i job illustrati verranno utilizzate diversi dataset con numero di ennuple crescenti ottenuti effettuando downsampling e oversampling dalla versione del dataset ottenuta post-processing, il dettaglio verrà approfondito nella sezione apposita. Per quanto riguarda gli output dei job invece, è stata utilizzata la versione del dataset ottenuta post-processing con percentuale del dataset pari al 100\%, ovvero con numero di ennuple originali.
+
+\subsection{Output}
+Di seguito sono riportate le prime 10 linee ottenuta dall'esecuzione delle varie implementazioni di tutti i job presentati in \ref{section:1}:
+\begin{itemize}
+    \item \textbf{Job 1}:
+    \begin{table}[!ht]
+      \centering
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{Map-Reduce}
+        \begin{tabular}{cccc}
+          \toprule
+          Year & ProductId & Word & Count \\
+          \midrule
+          2012 & B001VJ0B0I & food & 1563 \\
+          2012 & B001VJ0B0I & this & 1074 \\
+          2012 & B001VJ0B0I & that & 908 \\
+          2012 & B001VJ0B0I & dogs & 631 \\
+          2012 & B001VJ0B0I & with & 609 \\
+          2012 & B0041NYV8E & ginger & 1446 \\
+          2012 & B0041NYV8E & this & 1086 \\
+          2012 & B0041NYV8E & that & 660 \\
+          2012 & B0041NYV8E & drink & 623 \\
+          2012 & B0041NYV8E & lemon & 584 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}%
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{Hive}
+        \begin{tabular}{cccc}
+          \toprule
+          Year & ProductId & Word & Count \\
+          \midrule
+          1999 & 0006641040 & this & 5 \\
+          1999 & 0006641040 & when & 4 \\
+          1999 & 0006641040 & book & 3 \\
+          1999 & 0006641040 & along & 2 \\
+          1999 & 0006641040 & recite & 2 \\
+          1999 & B00004CI84 & rumplestiskin & 1 \\
+          1999 & B00004CI84 & with & 1 \\
+          1999 & B00004CI84 & rumbles & 1 \\
+          1999 & B00004CI84 & prime & 1 \\
+          1999 & B00004CI84 & point & 1 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}
+    \end{table}
+    
+    \begin{table}[!ht]
+      \centering
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{Spark Core}
+        \begin{tabular}{cccc}
+          \toprule
+          Year & ProductId & Word & Count \\
+          \midrule
+          1999 & 0006641040 & this & 5 \\
+          1999 & 0006641040 & when & 4 \\
+          1999 & 0006641040 & book & 3 \\
+          1999 & 0006641040 & books & 2 \\
+          1999 & 0006641040 & along & 2 \\
+          1999 & B00004CI84 & twist & 1 \\
+          1999 & B00004CI84 & rumplestiskin & 1 \\
+          1999 & B00004CI84 & captured & 1 \\
+          1999 & B00004CI84 & film & 1 \\
+          1999 & B00004CI84 & starring & 1 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}%
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{Spark SQL}
+        \begin{tabular}{cccc}
+          \toprule
+          Year & ProductId & Word & Count \\
+          \midrule
+          1999 & 0006641040 & this & 5 \\
+          1999 & 0006641040 & when & 4 \\
+          1999 & 0006641040 & book & 3 \\
+          1999 & 0006641040 & along & 2 \\
+          1999 & 0006641040 & recite & 2 \\
+          2000 & B00002N8SM & flies & 3 \\
+          2000 & B00002N8SM & after & 2 \\
+          2000 & B00002N8SM & quot & 2 \\
+          2000 & B00002N8SM & this & 2 \\
+          2000 & B00002N8SM & bought & 1 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}
+    \end{table}
+    \newpage
+    
+    \item \textbf{Job 2}:
+    \begin{table}[!ht]
+      \centering
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{MapReduce}
+        \begin{tabular}{cc}
+          \toprule
+          UserId & Appreciation \\
+          \midrule
+            A1EUO0BU72JR7T & 1.0 \\
+            A1EUMUYR3HUQPA & 1.0 \\
+            A1EUMJC8VE44QL & 1.0 \\
+            A1EUM0NGV6SRSQ & 1.0 \\
+            A1EULW892J1V5U & 1.0 \\
+            A1EUKV9UEKWP0K & 1.0 \\
+            A1EUKT4PPNJUEI & 1.0 \\
+            A1EUI8B624BU88 & 1.0 \\
+            A1EUHSLJ41U830 & 1.0 \\
+            A1EUH5T3M85UF1 & 1.0 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}%
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{Hive}
+        \begin{tabular}{cc}
+          \toprule
+          UserId & Appreciation \\
+          \midrule
+              AZZU4D6TZ2L6J & 1.0 \\
+              AZZRFMUO60L7J & 1.0 \\
+              AZZMDW27MUJR6 & 1.0 \\
+              AZZFJQFHITBZ5 & 1.0 \\
+              AZZ1VDC2O1VUN & 1.0 \\
+              AZYW6LUFW2RFN & 1.0 \\
+              AZYVD25M8Y4A2 & 1.0 \\
+              AZYTCGDO3R4ZU & 1.0 \\
+              AZYIAIP0PE9SE & 1.0 \\
+              AZYEQBVY8AVVW & 1.0 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}
+    \end{table}
+    \begin{table}[!ht]
+      \centering
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{Spark Core}
+        \begin{tabular}{cc}
+          \toprule
+          UserId & Appreciation \\
+          \midrule
+              A2TQ5EE53V34SX & 1.0 \\
+              A1EAX5HVYV96EF & 1.0 \\
+              A1Y64EPRAH20CX & 1.0 \\
+              AI1LL9G6L41KC & 1.0 \\
+              A36YQZO4XQ6KOD & 1.0 \\
+              A22JSUHQXNFOXT & 1.0 \\
+              A32KHOAU900IH0 & 1.0 \\
+              A2A6AMJRB2M2PJ & 1.0 \\
+              A1L4FDB71OYY7Q & 1.0 \\
+              A3CERM4YQI6DWD & 1.0 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}%
+      \begin{minipage}{.5\textwidth}
+        \centering
+        \caption{Spark SQL}
+        \begin{tabular}{cc}
+          \toprule
+          UserId & Appreciation \\
+          \midrule
+              AVCA516CFZ9HF & 1.0 \\
+              A3ARZW7S96SESC & 1.0 \\
+              A2CJGVAHVZGJIP & 1.0 \\
+              A7TCUZ9EVNRS0 & 1.0 \\
+              A3NIJP0MX60FW3 & 1.0 \\
+              A1TL8ME5TPUM2Y & 1.0 \\
+              A2N2UYF083BZW0 & 1.0 \\
+              AMDPYQR7QVOJQ & 1.0 \\
+              A30BNNI1U9FCIV & 1.0 \\
+              A1M5YCQ2BPI6ES & 1.0 \\
+          \bottomrule
+        \end{tabular}
+      \end{minipage}
+    \end{table}
+    \newpage
+    
+    \item \textbf{Job 3}:
+    \begin{table}[!ht]
+        \centering
+        \caption{Map-Reduce}
+        \begin{tabular}{cc}
+          \toprule
+          Common products &  Group of like-minded users \\
+          \midrule
+          B005HG9ESG,B005HG9ET0,B005HG9ERW & \hyperlink{Group1}{Group1} \\
+          B007KIOBMS,B003PFPFIE,B000MTM0WK & \hyperlink{Group2}{Group2} \\
+          B000MTM0WK,B003PFPFIE,B007KIOBMS & \hyperlink{Group2}{Group2} \\
+          B002R8UANK,B002R8J7YS,B002R8SLUY & \hyperlink{Group3}{Group3} \\
+          B005DGI1VG,B005DGI1IY,B005DGI242,B005EXGE5I & \hyperlink{Group4}{Group4} \\
+          B005DGI1IY,B005DGI1VG,B005DGI1PW,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          B005DGI242,B005EXGE5I,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          B005DGI1VG,B005DGI242,B005EXGE5I,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          B005DGI1VG,B005DGI242,B005EXGE5I & \hyperlink{Group4}{Group4} \\
+          B005DGI242,B005DGI1PW,B005EXGE5I,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          \bottomrule
+        \end{tabular}
+    \end{table}
+    
+    \begin{table}[!ht]
+    \centering
+    \caption{Hive}
+    \begin{tabular}{cc}
+      \toprule
+          Common products &  Group of like-minded users \\
+          \midrule
+          B005HG9ESG,B005HG9ET0,B005HG9ERW & \hyperlink{Group1}{Group1} \\
+          B007KIOBMS,B003PFPFIE,B000MTM0WK & \hyperlink{Group2}{Group2} \\
+          B000MTM0WK,B003PFPFIE,B007KIOBMS & \hyperlink{Group2}{Group2} \\
+          B002R8UANK,B002R8J7YS,B002R8SLUY & \hyperlink{Group3}{Group3} \\
+          B005DGI1VG,B005DGI1IY,B005DGI242,B005EXGE5I & \hyperlink{Group4}{Group4} \\
+          B005DGI1IY,B005DGI1VG,B005DGI1PW,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          B005DGI242,B005EXGE5I,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          B005DGI1VG,B005DGI242,B005EXGE5I,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          B005DGI1VG,B005DGI242,B005EXGE5I & \hyperlink{Group4}{Group4} \\
+          B005DGI242,B005DGI1PW,B005EXGE5I,B005DGI2II & \hyperlink{Group4}{Group4} \\
+          \bottomrule
+    \end{tabular}
+  \end{table}
+
+    \begin{table}[!h]
+    \centering
+    \caption{Spark-Core}
+    \begin{tabular}{cc}
+      \toprule
+          Common products &  Group of like-minded users \\
+          \midrule
+          N/A\textbf{*}  & N/A\textbf{*} \\
+          \bottomrule
+    \end{tabular}
+  \end{table}
+
+    \begin{table}[!h]
+    \centering
+    \caption{Spark-SQL}
+    \begin{tabular}{cc}
+      \toprule
+          Common products &  Group of like-minded users \\
+          \midrule
+          N/A\textbf{*}  & N/A\textbf{*} \\
+          \bottomrule
+    \end{tabular}
+  \end{table}
+
+\textbf{*} I valori N/A\textbf{*} di output dalle implementazioni di Spark-Core e Spark-SQL sono stati osservati, ma per correttezza non aggiunti poichè si è notato che queste implementazioni per il terzo job una volta introdotto il codice per rimuovere i duplicati e l'ordinamento dei risultati sulla base del primo elemento del gruppo creava un outOfMemory di spark sia in locale che in cluster, rimuovendo questo pezzo di codice è possibile osservare l'output, giudicato corretto fino a tale punto.
+\newpage    
+
+\end{itemize}
+
+\subsection{Configurazione Software/Hardware}
+La configurazione del sistema in locale con il quale sono stati effettuati i test in locale è, CPU 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz 2.42 GHz, 16GB ram. Mentre la configurazione del cluster ERM utilizzato per eseguire i test su AWS è: 1 master, 4 slave m5.xlarge con 4 vCore, 16GB ram.
+\subsection{Tempi di esecuzione}
+Per valutare le performance (temporali) ed effettuare una comparazione tra MapReduce, Hive, Spark-Core e Spark-SQL, ciascuna implementazione di ciascun job è stata eseguita in locale e su cluster utilizzando dimensioni crescenti del dataset, rispettivamente \textbf{100\%}, \textbf{200\%}, \textbf{250\%}, \textbf{500\%}, \textbf{750\%} e \textbf{1000\%} del dataset più uno al \textbf{50\%} usato solo per i test del terzo job per questioni di tempo. Per effettuare queste valutazioni è stata calcolata la media dei tempi d'esecuzione trovati in ciascuna esecuzione su un totale di 10 esecuzioni.
+
+\subsubsection{Job 1 - locale}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{barplot_times_1_job_local}
+    \caption{BarPlot Performance Comparison - 1st job}
+\end{figure}
+
+\begin{table}[!ht]
+  \centering
+  \caption{Table Performance Comparison local (in seconds) - 1st job}
+  \label{tab:performance}
+  \begin{tabular}{c|c|c|c|c}
+    \toprule
+    Dataset Percentage & MR & Hive & Spark-Core & Spark-SQL \\
+    \midrule
+    100\% & 36.894 & 115.154 & 55.904 & \textbf{36.393} \\
+    200\% & 46.683 & 100.126 & 57.226 & \textbf{43.824} \\
+    250\% & 55.944 & 106.370 & 58.050 & \textbf{49.136} \\
+    500\% & 92.598 & 167.288 & 80.570 & \textbf{63.736} \\
+    750\% & 101.637 & 209.778 & 99.100 & \textbf{89.417} \\
+    1000\% & 188.920 & 278.802 & 122.451 & \textbf{105.177} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\newpage
+\subsubsection{Job 2 - locale}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{barplot_times_2_job_local}
+    \caption{BarPlot Performance Comparison - 2nd job}
+\end{figure}
+
+\begin{table}[!ht]
+  \centering
+  \caption{Table Performance Comparison local (in seconds) - 2nd job}
+  \label{tab:performance}
+  \begin{tabular}{c|c|c|c|c}
+    \toprule
+    Dataset Percentage & MR & Hive & Spark-Core & Spark-SQL \\
+    \midrule
+    100\% & 38.527 & 52.363 & 35.262 & \textbf{34.944} \\
+    200\% & 39.140 & 52.086 & \textbf{36.502} & 46.677 \\
+    250\% & 40.440 & 52.422 & \textbf{38.021} & 48.148 \\
+    500\% & 50.693 & 61.574 & \textbf{46.188} & 63.883 \\
+    750\% & 64.970 & 75.902 & \textbf{54.407} & 76.778 \\
+    1000\% & 74.446 & 84.166 & \textbf{68.106} & 92.926 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\newpage
+
+\subsubsection{Job 3 - locale}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{barplot_times_3_job_local.png}
+    \caption{BarPlot Performance Comparison - 3nd job}
+\end{figure}
+
+\begin{table}[!ht]
+  \centering
+  \caption{Table Performance Comparison local (in seconds) - 3nd job}
+  \label{tab:performance}
+  \begin{tabular}{c|c|c|c|c}
+    \toprule
+    Dataset Percentage & MR & Hive & Spark-Core & Spark-SQL \\
+    \midrule
+    50\% & 349.182 & \textbf{175.801} & N/A & N/A \\
+    100\% & 3780.574 & \textbf{1860.617} & N/A & N/A \\
+    200\% & N/A & N/A & N/A & N/A \\
+    250\% & N/A & N/A & N/A & N/A \\
+    500\% & N/A & N/A & N/A & N/A \\
+    750\% & N/A & N/A & N/A & N/A \\
+    1000\% & N/A & N/A & N/A & N/A \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\newpage
+
+
+\subsubsection{Job 1 - cluster AWS}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{barplot_times_1_job_AWS}
+    \caption{BarPlot Performance Comparison - 1nd job}
+\end{figure}
+
+\begin{table}[!ht]
+  \centering
+  \caption{Table Performance Comparison AWS (in seconds) - 1st job}
+  \label{tab:performance}
+  \begin{tabular}{c|c|c|c|c}
+    \toprule
+    Dataset Percentage & MR & Hive & Spark-Core & Spark-SQL \\
+    \midrule
+     100\% & 31.621 & 66.882 & 36.359 & \textbf{21.566} \\
+    200\% & 39.531 & 58.011 & 37.894 & \textbf{26.088} \\
+    250\% & 47.489 & 61.729 & 37.770 & \textbf{28.727} \\
+    500\% & 78.527 & 96.663 & 53.047 & \textbf{37.768} \\
+    750\% & 85.653 & 121.778 & 64.961 & \textbf{53.008} \\
+    1000\% & 162.075 & 162.785 & 79.716 & \textbf{61.721} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\newpage
+
+  
+\subsubsection{Job 2 - cluster AWS}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{barplot_times_2_job_AWS}
+    \caption{BarPlot Performance Comparison - 2nd job}
+\end{figure}
+
+\begin{table}[!ht]
+  \centering
+  \caption{Table Performance Comparison AWS (in seconds) - 2nd job}
+  \label{tab:performance}
+  \begin{tabular}{c|c|c|c|c}
+    \toprule
+    Dataset Percentage & MR & Hive & Spark-Core & Spark-SQL \\
+    \midrule
+    100\% & 52.161 & 34.717 & 26.610 & \textbf{21.413} \\
+    200\% & 52.613 & 34.050 & \textbf{27.668} & 28.966 \\
+    250\% & 54.542 & 34.695 & \textbf{29.224} & 29.855 \\
+    500\% & 68.595 & 40.200 & \textbf{35.090} & 39.568 \\
+    750\% & 87.600 & 50.005 & \textbf{41.609} & 47.968 \\
+    1000\% & 98.615 & 55.541 & \textbf{51.963} & 57.607 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\newpage
+
+\subsubsection{Job 3 - cluster AWS}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{barplot_times_3_job_AWS}
+    \caption{BarPlot Performance Comparison - 3nd job}
+\end{figure}
+
+\begin{table}[!ht]
+  \centering
+  \caption{Table Performance Comparison AWS (in seconds) - 3nd job}
+  \label{tab:performance}
+  \begin{tabular}{c|c|c|c|c}
+    \toprule
+    Dataset Percentage & MR & Hive & Spark-Core & Spark-SQL \\
+    \midrule
+    50\% & N/A & \textbf{2200.71} & N/A & N/A \\
+    100\% & N/A & \textbf{2400.39} & N/A & N/A \\
+    200\% & N/A & N/A & N/A & N/A \\
+    250\% & N/A & N/A & N/A & N/A \\
+    500\% & N/A & N/A & N/A & N/A \\
+    750\% & N/A & N/A & N/A & N/A \\
+    1000\% & N/A & N/A & N/A & N/A \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\newpage
+
+\subsubsection{Grafici a confronto sui job in locale e AWS}
+Di seguito sono riportati i grafici per confrontare i tempi di esecuzione sui diversi job, in locale e in cluster AWS, dove, per la mancanza di dati non è stato preso in considerazione il terzo job nè in locale nè in cluster.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=0.6\textwidth]{compare_barplt_MR.png}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=0.6\textwidth]{compare_barplt_Hive.png}
+\end{figure}
+\newpage
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=0.6\textwidth]{compare_barplt_SparkCore.png}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[height=0.6\textwidth]{compare_barplt_SparkSQL.png}
+\end{figure}
+\newpage
+
+\subsubsection{Gruppi Job 3}
+\begin{itemize}
+\item \textbf{\hypertarget{Group1}{Group1}}: \\
+    \#oc-R11D9D7SHXIJB9, \#oc-R11O5J5ZVQE25C,\#oc-R12MGTQS5KZZRV, \\ \#oc-R14ZSRYW2YB41B, \#oc-R155JB2SA58E17, \#oc-R162D7S0A880MV, \\ \#oc-R163CP16SRRI50, \#oc-R19EJ3VEA88T6O, \#oc-R1CF9LIM90SAB6, \\ \#oc-R1GKUU1PTIDIZ7, \#oc-R1GSBW9QIVY489, \#oc-R1K4OCJ8HEIEDY, \\ \#oc-R1QHGBT11WAS7G, \#oc-R1U8FAII0QYOT3, \#oc-R1UO6NAAGVBW7Z, \\ \#oc-R1VRD09DW4H2HI, \#oc-R26DKYCO954ZWP, \#oc-R28I1AL1ZAZLXL, \\ \#oc-R2B86BJE5FNKXX, \#oc-R2HWL8UHAIMFRS, \#oc-R2K9AJ2LWO7ZUJ, \\ \#oc-R2M17G7NB9RAIV, \#oc-R2MG5C3DMRU8Q0, \#oc-R2R45EEG606NCJ, \\ \#oc-R2W0C6DARSLJ0S, \#oc-R2W66Y63G88976, \#oc-R2XZVYL146WRFL, \\ \#oc-R2YPVWM76O2TFX, \#oc-R31AI08Q9HLVF1, \#oc-R34PQ2ORKQ6WCD, \\ \#oc-R3DERHJ8UWPZZ, \#oc-R3EDGA2893DM4Y, \#oc-R3F0UDHOQC1RNU, \\ \#oc-R3OS88C8I7GSS5, \#oc-R3RMG4F3JAN4CE, \#oc-R3RQNMHS7481DE, \\ \#oc-R3SRKE3YQ2BNES, \#oc-R3TXZAQ0JD85LR, \#oc-R3TZTZQ7UHNM8Y, \\ \#oc-RKU1BA6XFA3Q4, \#oc-RMBODWNVK1H1D, \#oc-RODMQLZAXFCUG, \\ \#oc-RS2VFRNYYRVUG, \#oc-RSZMLJGJRON5W, \#oc-RUCLMJ3IUSWPC, \\ \#oc-RXCJ97CMQTXVA, \#oc-RXFX0AFFBDSJN, A10LDAXFO052F7, \\ A119SZPTE05762, A11I1I9QLMAM1A, A11OBEH2ZCVAHX, \\ A11OTLEDSW8ZXD, A14EF1PPKMSEPU, A14X244VGHWPSX, \\ A161BVWC65FWE5, A174GR3NPUAPPN, A18OUQEK7IZ2F2, \\ A194K60CWZ371J, A19EKT8H85AKO5, A19FRW264WZTGP, \\ A19XMHRB3G4DIR, A1A535TCGNMVPI, A1AEPMPA12GUJ7, \\ A1BK60GZ4QME6I, A1E50L7PCVXLN4, A1E5WXNTI7EO2A, \\ A1EVV74UQYVKRY, A1F1A0QQP2XVH5, A1F7YU6O5RU432, \\ A1HRYC60VTMYC0, A1ITRGMT80D5TK, A1JMR1N9NBYJ1X, \\ A1JV4QKTEB7QBL, A1KEK09ZA6J9P8, A1KXJCXS6HFRQZ, \\ A1L1S42BOGPF96, A1LA4K5JF78BER, A1MZL91Z44RN06,\\ A1NOV41485TE0D, A1ODOGXEYECQQ8,  A1OHGX0LKS6QLP,\\ A1ONZ8JRPLBNUI, A1OWRLSD7LTSQ9, A1P2XYD265YE21,\\ A1PI8VBCXXSGC7, A1PQTLSDHCK8II, A1QBOC76MIOJYP,\\ A1R1BFJCMWX0Y3, A1UHKF1UQ3EGW4, A1UMSB7LAW0RIR,\\ A1UQBFCERIP7VJ, A1VF5LN6SHFVFJ, A1VYFEJM12ZP11,\\ A1W2EGUPW8OYH4, A1W415JP5WEAJK, A1W60EW7Q6A75C,\\ A1WKQ94M45D8MG, A1Y5ERIKQBEMSP, A1YJMG0QJXZLD4,\\ A1ZCSSCAGBCD49, A1ZENB34HH2EIM, A1ZPY91VE3IDN1,\\ A1ZU55TM45Y2R8, A2068BC3ZXAVJQ, A20V7N5A22F4BM,\\ A215WH6RUDUCMP, A217CC8F7N5717, A219J1R4Z4BF7R,\\ A226VGZWOEBPGL, A22CW0ZHY3NJH8, A22KL4WOK6GTW2,\\ A235UFZGCFN3J5, A23RZIU0N8K2KR, A244CRJ2QSVLZ4,\\ A24U6WGBZ4P74W, A2561PYW9TTMYD, A25C5MVVCIYT5D,\\ A25HYPL2XKQPZB, A25KVM6GJBLISZ, A267FU71Z01CIH,\\ A26LD9FQHTM8ZH, A26TYDQ2BFD4EG, A277TO3PKKNYDH,\\ A27CK29BVQNGD9, A27O5ZUFAEWT9L, A294SHLWPSG1BP,\\ A29M09QBG9TZLP, A2AWVROFGSZU4E, A2BE3MTUT0YBF0,\\ A2CRIQOX1SYA3I, A2D7B5I7ZQ51XL, A2DPYMNI2HCIOI,\\ A2E7RX6AFUDQEX, A2F09EWKV3MTO2, A2GPJR489OIH42,\\ A2HTPS0JV3Q8ZD, A2IMLOJ2Z2QEU2, A2JAEZ0FMAMJVW,\\ A2L0WJMOT484GM, A2L4ZGN7GZJ95T, A2L6BT1PVV9YN0,\\ A2LRNLAV0ZIL4U, A2MGNLN42OKJHC, A2MJ8OL2FYN7CW,\\ A2OCDK0BOW6UCY, A2OR4QUQSUMOW7, A2PD27UKAD3Q00,\\ A2PSC7LUNIDEAH, A2R1HUYHXV7H18, A2RHV42BTJSVON,\\ A2S26YGSVXBCFL, A2TBAUW2W7J538, A2UEB48LAWFUCW,\\ A2UGR7VULJBQ2N, A2UW9WI22QKMZE, A2V0I904FH7ABY,\\ A2V92F5R7MLCVI, A2W9I628I6SE1U, A2WB4OWBUH2VQX,\\ A2WN1QF8GSVHYV, A2WW57XX2UVLM6, A2X3L31KCXBHCL,\\ A2XIOXRRYX0KZY, A2XSY4L7GDHV4W, A2YB7DLC3FOR7W,\\ A2YKWYC3WQJX5J, A2YQ2ZI65F37N8, A2ZPZM9RE08JXF,\\ A3094EPI56GKZ6, A30LSAC7UMZDWS, A30Z3BVRNUM3NW,\\ A319Y83RT0MRVR, A31BD4RXCON7QO, A31COKWABW2WH2,\\ A31RULW0KNYJ5H, A32EOHLFZYXJEP, A32XGYDA14KT13,\\ A339F4I8GBN3H3, A33Y8C4818EJL0, A353U0L2HAMSHV,\\ A36K2N527TXXJN, A36MP37DITBU6F, A37DXIENIDHTVY,\\ A37FFWZUGO8L7W, A37OYVYHR5U4NU, A38U7MGM8XLVI2,\\ A39WWMBA0299ZF, A3A7Y3TSPPZU9T, A3AQO91DYWF8R0,\\ A3BAE79NXFDXGV, A3BFDEBT5IV4UN, A3BKNXX8QFIXIV,\\ A3CA3RWZYJDWXE, A3DOPYDOS49I3T, A3DRSOGQJRX10,\\ A3DZFEICHK5LF2, A3EFSLEMHNPP6A, A3EOVXI1VZIHUQ,\\ A3F3B6HY9RJI04, A3FMPT5IH0CJ50, A3GRN6J64F2C3X,\\ A3H7NPNDMGLOU4, A3I1BJIFFM4S21, A3K91X9X2ARDOK,\\ A3KDO3XV0MK1GX, A3LGT6UZL99IW1, A3M06TE1J42O3T,\\ A3MUSWDCTZINQZ, A3N4CUW4UYC9I3, A3NCIN6TNL0MGA,\\ A3NM1MT3Q2FHXV, A3NOBH42C7UI5M, A3OJX18B60PJR9,\\ A3Q1EDCBV2KU8D, A3QNQQKJTL76H0, A3QS4WWC1LCA6H,\\ A3QTW5LIX5SB6F, A3QVAKVRAH657N, A3RR2P5IS3DGPR,\\ A3SMR4HRFJARSC, A3SMV35531YME, A3VBXQKRM7A4JR,\\ A3VI2VETB90ZG5, A3VJ27010XUWTF, A44OY8EFDM4IP,\\ A4D5B7Q8A7PA6, A55LS2HWPQB0Q, A91TB0WX94MHP,\\ A9KLAL1CXZ0W5, AC0HPFQVBZVGY, AEJAGHLC675A7,\\ AEL6CQNQXONBX, AG6JWI77UMETS, AGEKVD8JPZQMT,\\ AHUT55E980RDR, AIEEK7AHXKZCC, AJ2FDNZ3COBFN,\\ AJRFZ0VZ0LD26, AKJHHD5VEH7VG, ALNFHVS3SC4FV,\\ ALSAOZ1V546VT, AN0U0GNJJPEUR, ANTN61S4L7WG9,\\ APDPA11IZPYLN, APP35M28G2U51, AQ6AGWKWMTY8H,\\ AQM0K7MBBT4AY, ARBKYIVNYWK3C, AS44QEHT3KSPK,\\ ASB4QD6YZJ7EX, ASJ0MKRFZC47B, ATANE2SC44592,\\ ATLO3YXU2BC16, AVJJ2D4G5I0Z4, AW7BIYHXUIZ62,\\ AY6A8KPYCE6B0, AYB4ELCS5AM8P, AYNAH993VDECT,\\ AYNRALJ4X1COS.
+    
+    \item \textbf{\hypertarget{Group2}{Group2}}: \\
+    A015565634RZNSDLJBE5M, A100WO06OQR8BQ, A153Z14M79BKXB,\\ A16Q6SQ525EWQ5, A1MREIREZPBQEM, A1U8Y12CEPCBLV,\\ A23YGAIIIVTXEJ, A250AXLRBVYKB4, A2BCPW3PAXDQO8,\\ A2D0XVKNI8BN4A, A2DSD897956MZ7, A2QLCPGTTTIXIG,\\ A2WHNMZDUT6FJD, A2YHXAZLCLDT8D, A2ZRHMDYE6GM99,\\ A37MGGH3IQN5N2, A3HEXX70YUO8GG, A3LIW8GEAJHTYS,\\ A3MAZ108GUY8E, A3PVQGDJCOUZD1, A3S8ZXHA6XED0R,\\ A5IY506P3XG3N, AC1Z18O8ZKKYF, AC6O7RG7C7JHL,\\ AF5L8Y1LNS5G2, AFRZ1104BVZI3, AGX98VPQIR6EA,\\ ALJK8HT7T6YBT, ALL9XFM0Q1N4E
+
+    \item \textbf{\hypertarget{Group3}{Group3}}: \\
+    A09539661HB8JHRFVRDC, A110S3BQL5I1FE, A135LSE7SZE4BS,\\ A14G9DGRMBDV2U, A16AXQ11SZA8SQ, A16BVTW5Z12JDN,\\ A18TOZ8633JCXK, A19XFJFZ7PRSD2, A1A8JORZKBNRVE,\\ A1ABGR2LODX1W4, A1AJPYEH052IAT, A1BKNQFU3DGXBT,\\ A1BO2VV20MJDB3, A1E7PX99QBET2V, A1GXBRQK3COZO6,\\ A1GYCLXKB0Q26G, A1IXHI7IT67YLW, A1MG108H5E3JCC,\\ A1OFIQMDMBCY0W, A1PGF9SG78OEOT, A1QLQCJVGCQPP0,\\ A1RC1HERCUGHKC, A1RFGLD33EFO1M, A1RJVX3BGIG7W0,\\ A1S4G32UCKL9NB, A1TM3BTAYL40TB, A1UL64AZIAO2EC,\\ A1YCNM79B8EJSL, A209W98KSM74EJ, A21YKVC1JLU3LQ,\\ A24M48TURQP8QJ, A26LD9FQHTM8ZH, A26YYXWNA5AKKK,\\ A276BKCK4ZE7EW, A27JW36LL692QF, A29C2G5YUPYYVM,\\ A29DK9VBXKNB6Y, A29RN08WUB8WF2, A2CJVQQT09MRDX,\\ A2DNP1OYGWWXMT, A2FB95H8NZ27Z4, A2FU4R0UIB68BZ,\\ A2P6QIM8V4Q35E, A2PCIWAVOE2ZK5, A2PS60GWNK5VJ0,\\ A2PY7DQZTIWQOX, A2R94GSBDXG9SU, A2RTA0NCGYGCFC,\\ A2VKGUC5FN5QCY, A2YYSK2Q391XVH, A32487P9JX4520,\\ A324A43N1MU8PY, A32QYMDC6BROI3, A35TIC6B8MVKWG,\\ A370R2HK94LR43, A375R453E582H3, A37B5UD233DOF,\\ A37D9XMXYZ367Z, A38QBGUCE7N5F5, A39JF4NO5TYNNI,\\ A3C00N4UHA5XYX, A3C9NJBL1QQN3T, A3CAZVFHLRQEXQ,\\ A3G0FL3LSYL3FI, A3JH5ZLRZT1GKK, A3RFNCMOL3FSE8,\\ A3TQDIJYJPE98A, A3URGVZA532GOF, A3VX6X9LSLN6HW,\\ A50C9OS3H26GX, A7WLAB8NXTR8O, A8TQI80KFZTSD,\\ ACAIEIV03NBHY, AHZR11DB40FG4, AM6AIM58WJ3TD,\\ ATP5JJ1PE30R5, ATWCN4DHSVD2S, AUIFSR1S6JB50,\\ AVEHS8PMSVYJ1, AVI0L11EI0LBB, AXB8OD9ODILFU,\\ AZHMUHW3FAOC5.
+
+    \item \textbf{\hypertarget{Group4}{Group4}}: \\
+    A1001WMV1CL0XH, A275DMHZMRS9ZN, A2NYSPU3ILRJGP,\\ A2Q4XCKPUKKHX3, A3J2ECWH1TEQXW
+\end{itemize}
